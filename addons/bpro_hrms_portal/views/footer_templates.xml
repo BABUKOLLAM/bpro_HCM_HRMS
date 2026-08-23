@@ -15,6 +15,14 @@
             <div id="footer" class="oe_structure oe_structure_solo" t-ignore="true" t-if="not no_footer">
                 <section class="s_text_block pt40 pb16" data-snippet="s_text_block" data-name="Text">
                     <div class="container">
+                        <!-- The real logo (bpro_logo_dark.png) has an opaque
+                             dark-navy background baked in, so it only goes
+                             where that fits - this dark footer, not the
+                             white navbar/login-card logo slot, which stays
+                             untouched until a transparent/light version
+                             exists. -->
+                        <img src="/bpro_hrms_portal/static/src/img/bpro_logo_dark.png"
+                             alt="bpro" style="max-height:56px; margin-bottom:24px;"/>
                         <div class="row">
                             <div class="col-lg-3 pt24 pb24">
                                 <h5 class="mb-3">Useful Links</h5>
