@@ -25,6 +25,7 @@ scroll reveals, counters and parallax are ~100 lines of vanilla JS.
     "data": [
         "views/landing_templates.xml",
         "views/login_templates.xml",
+        "views/footer_templates.xml",
     ],
     "assets": {
         "web.assets_frontend": [

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Every other public page (partner/contact pages, /contactus, any
+         future page) falls through to Odoo's own default footer, which
+         a live audit found was never customized: literal placeholder
+         copy ("We are a team of passionate people..."), a fake email
+         (info@yourcompany.example.com), a fake phone (+1 555-555-5556),
+         and three "Useful Links" pointing nowhere (href="#"). Replaces
+         the content wholesale (matching login_templates.xml's own
+         approach) rather than patching pieces of unknown markup -
+         email/phone are bound to the real company record via QWeb,
+         not hardcoded, so they stay correct if that record changes. -->
+    <template id="footer_custom_content" inherit_id="website.footer_custom" priority="30">
+        <xpath expr="//div[@id='footer']" position="replace">
+            <div id="footer" class="oe_structure oe_structure_solo" t-ignore="true" t-if="not no_footer">
+                <section class="s_text_block pt40 pb16" data-snippet="s_text_block" data-name="Text">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-3 pt24 pb24">
+                                <h5 class="mb-3">Useful Links</h5>
+                                <ul class="list-unstyled">
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/jobs">Careers</a></li>
+                                    <li><a href="/contactus">Contact us</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-lg-5 pt24 pb24">
+                                <h5 class="mb-3">About us</h5>
+                                <p>A complete, India-ready Human Capital Management suite —
+                                   hire-to-retire in one platform, with statutory payroll
+                                   compliance built in, not bolted on.
+                                   <br/><br/>
+                                   Developed by
+                                   <a href="https://www.drbabu.in" target="_blank" rel="noopener">Dr. Babu</a>
+                                   &amp;
+                                   <a href="https://www.bpropms.com" target="_blank" rel="noopener">bpro Technologies</a>.
+                                </p>
+                            </div>
+                            <div id="connect" class="col-lg-3 offset-lg-1 pt24 pb24">
+                                <h5 class="mb-3">Connect with us</h5>
+                                <ul class="list-unstyled">
+                                    <li><i class="fa fa-comment fa-fw me-2"/><span><a href="/contactus">Contact us</a></span></li>
+                                    <li t-if="website.company_id.email">
+                                        <i class="fa fa-envelope fa-fw me-2"/>
+                                        <span>
+                                            <a t-attf-href="mailto:{{website.company_id.email}}" t-esc="website.company_id.email"/>
+                                        </span>
+                                    </li>
+                                    <li t-if="website.company_id.phone">
+                                        <i class="fa fa-phone fa-fw me-2"/>
+                                        <span class="o_force_ltr">
+                                            <a t-attf-href="tel:{{website.company_id.phone}}" t-esc="website.company_id.phone"/>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- "Copyright © Company name" - confirmed via the live rendered
+         DOM (document.querySelector('.o_footer_copyright_name')) to
+         be literal hardcoded text, not a field placeholder - nobody
+         had ever edited it. Targeted by its stable CSS class against
+         website.layout directly (the common wrapper), not against
+         whichever specific footer variant happens to be active, since
+         that's what actually renders it into the final page. -->
+    <template id="footer_copyright_name" inherit_id="website.layout" priority="30">
+        <xpath expr="//span[hasclass('o_footer_copyright_name')]" position="replace">
+            <span class="o_footer_copyright_name me-2">
+                Copyright © <t t-esc="website.company_id.name"/>
+            </span>
+        </xpath>
+    </template>
+</odoo>
