@@ -7,6 +7,10 @@
     notifempty
     create 0640
     sharedscripts
+    # Odoo keeps the logfile open. This sample restarts only the odoo
+    # service after rotation so it reopens the fresh file; it is more
+    # disruptive than a signal-based reopen, but avoids copytruncate's
+    # data-loss window and works with the stock container/image here.
     postrotate
         cd /path/to/bpro-hrms-hcm && docker compose -f docker-compose.yml -f docker-compose.prod.yml restart odoo >/dev/null 2>&1 || true
     endscript

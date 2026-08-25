@@ -68,7 +68,7 @@ fi
 
 (
     cd "$TEMP_DEST"
-    sha256sum db.dump > SHA256SUMS
+    sha256sum db.dump metadata.env > SHA256SUMS
     if [ "$HAS_FILESTORE" = "1" ]; then
         sha256sum filestore.tar.gz >> SHA256SUMS
     fi

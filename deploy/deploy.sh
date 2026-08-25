@@ -25,7 +25,8 @@ cd "$REPO_DIR"
 
 require_env() {
     local name="$1"
-    if [ -z "${!name:-}" ]; then
+    local value="${!name-}"
+    if [ -z "$value" ]; then
         echo "[deploy] FATAL: ${name} is empty in .env. Aborting." >&2
         exit 1
     fi
