@@ -79,6 +79,7 @@ trap - EXIT
 
 echo "[$(date)] Backup complete: ${DEST}"
 
-# Prune backups older than 30 days - adjust the retention window to
-# the client's actual policy (and to your available storage).
+# Prune backups older than the configured retention window
+# (BACKUP_RETENTION_DAYS, default 30) - adjust that to the client's
+# actual policy and available storage.
 find "$BACKUP_DIR" -maxdepth 1 -type d -name "${DB_NAME}_*" -mtime +"${RETENTION_DAYS}" -exec rm -rf {} \;

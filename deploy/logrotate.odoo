@@ -5,5 +5,9 @@
     delaycompress
     missingok
     notifempty
-    copytruncate
+    create 0640
+    sharedscripts
+    postrotate
+        cd /path/to/bpro-hrms-hcm && docker compose -f docker-compose.yml -f docker-compose.prod.yml restart odoo >/dev/null 2>&1 || true
+    endscript
 }
