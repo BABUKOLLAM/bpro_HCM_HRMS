@@ -144,7 +144,7 @@ resets to the exact latest commit (verifiable, not a hope), re-injects
 the real `admin_passwd` from a gitignored `.env` file so a reset can
 never again revert it to the public placeholder, installs/upgrades
 every module, restarts, and refuses to report success unless
-`/web/login` actually returns `200` afterward.
+`/web/health` actually returns `200` afterward.
 
 One-time setup, on the server, before the first run:
 
