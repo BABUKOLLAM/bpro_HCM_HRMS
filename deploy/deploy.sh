@@ -23,6 +23,14 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_DIR"
 
+require_env() {
+    local name="$1"
+    if [ -z "${!name:-}" ]; then
+        echo "[deploy] FATAL: ${name} is empty in .env. Aborting." >&2
+        exit 1
+    fi
+}
+
 # --- Phase 1: get the exact latest code, then re-exec a fresh copy of ------
 # this very script. This script lives INSIDE the repo it resets, so
 # `git reset --hard` can overwrite deploy.sh's own source file while
@@ -73,14 +81,14 @@ fi
 
 # shellcheck disable=SC1091
 source "$REPO_DIR/.env"
-if [ -z "${ODOO_ADMIN_PASSWD:-}" ]; then
-    echo "[deploy] FATAL: ODOO_ADMIN_PASSWD is empty in .env. Aborting." >&2
-    exit 1
-fi
+require_env COMPOSE_PROJECT_NAME
+require_env ODOO_ADMIN_PASSWD
+require_env ODOO_DB_NAME
+require_env DEPLOY_MODE
 
-if [ -z "${ODOO_DB_NAME:-}" ]; then
-    echo "[deploy] FATAL: ODOO_DB_NAME is empty in .env. Aborting." >&2
-    exit 1
+ENV_PERMS="$(stat -c '%a' "$REPO_DIR/.env" 2>/dev/null || true)"
+if [ -n "$ENV_PERMS" ] && [ "$ENV_PERMS" != "600" ] && [ "$ENV_PERMS" != "400" ]; then
+    log "WARNING: .env permissions are $ENV_PERMS (recommended: chmod 600 .env)."
 fi
 
 ODOO_DBFILTER="${ODOO_DBFILTER:-^${ODOO_DB_NAME}$}"
@@ -109,6 +117,12 @@ case "${DEPLOY_MODE:-}" in
         exit 1
         ;;
 esac
+
+log "Validating the merged Docker Compose configuration..."
+if ! $COMPOSE config -q; then
+    echo "[deploy] FATAL: docker compose config validation failed. Aborting before touching the live stack." >&2
+    exit 1
+fi
 
 log "Re-applying instance settings from .env into config/odoo.prod.conf..."
 ODOO_ADMIN_PASSWD="$ODOO_ADMIN_PASSWD" ODOO_DB_NAME="$ODOO_DB_NAME" ODOO_DBFILTER="$ODOO_DBFILTER" python3 <<'PY'
@@ -202,26 +216,33 @@ $COMPOSE up -d --force-recreate --remove-orphans odoo
 # --- 5. Verify it's actually serving before declaring success ---------------
 # Poll rather than a single fixed sleep - a fresh restart right after
 # installing every module can reasonably take longer than a few seconds
-# to bind its HTTP port. Checked via `docker exec ... curl localhost`
-# from inside the container, not by curling its bridge-network IP from
-# the host - the latter depends on host-to-bridge routing being
-# permitted, which isn't universal across Docker setups (confirmed the
-# hard way: works fine from another container on the same network, but
-# is unreachable from the host on Docker Desktop for Mac, where
-# containers run inside a VM). Checking from inside sidesteps that
-# entirely and works identically everywhere.
+# to bind its HTTP port. Use the same lightweight /web/health endpoint
+# the production container healthcheck uses, rather than the heavier
+# /web/login page. Checked via `docker exec ... curl localhost` from
+# inside the container, not by curling its bridge-network IP from the
+# host - the latter depends on host-to-bridge routing being permitted,
+# which isn't universal across Docker setups (confirmed the hard way:
+# works fine from another container on the same network, but is
+# unreachable from the host on Docker Desktop for Mac, where containers
+# run inside a VM). Checking from inside sidesteps that entirely and
+# works identically everywhere.
 ODOO_CONTAINER=$($COMPOSE ps -q odoo)
 
 STATUS="000"
 for i in $(seq 1 30); do
-    STATUS=$(docker exec "$ODOO_CONTAINER" curl -s -m 5 -o /dev/null -w '%{http_code}' http://localhost:8069/web/login 2>/dev/null || echo "000")
+    STATUS=$(docker exec "$ODOO_CONTAINER" curl -s -m 5 -o /dev/null -w '%{http_code}' http://localhost:8069/web/health 2>/dev/null || echo "000")
     [ "$STATUS" = "200" ] && break
     sleep 2
 done
 
 if [ "$STATUS" != "200" ]; then
-    echo "[deploy] FAILED: /web/login returned HTTP $STATUS after waiting up to 60s. Check: docker compose logs odoo" >&2
+    echo "[deploy] FAILED: /web/health returned HTTP $STATUS after waiting up to 60s. Check: docker compose logs odoo" >&2
     exit 1
 fi
 
-log "SUCCESS - deployed ${DEPLOY_SH_AFTER_SHA:-unknown}, /web/login returned 200."
+mkdir -p "$REPO_DIR/logs/deploy"
+printf '%s sha=%s db=%s mode=%s status=%s\n' \
+    "$(date -Iseconds)" "${DEPLOY_SH_AFTER_SHA:-unknown}" "$ODOO_DB_NAME" "$DEPLOY_MODE" "$STATUS" \
+    >> "$REPO_DIR/logs/deploy/history.log"
+
+log "SUCCESS - deployed ${DEPLOY_SH_AFTER_SHA:-unknown}, /web/health returned 200."

@@ -104,9 +104,13 @@ instance. Full walkthrough in
 ```bash
 ./scripts/backup_db.sh <db_name>        # back up
 ./scripts/restore_db.sh <backup_dir> <target_db_name>  # restore
+./scripts/verify_backup.sh <backup_dir> <scratch_db_name>  # rehearse a restore end-to-end
 ```
 
-Nothing runs automatically — schedule `backup_db.sh` via cron. See
+Nothing runs automatically — schedule `backup_db.sh` via cron and rehearse
+`verify_backup.sh` regularly against a scratch database. Set
+`BACKUP_RETENTION_DAYS` in the cron environment if the default 30-day
+retention is not right for that client. See
 [`docs/SETUP_GUIDE.md`](docs/SETUP_GUIDE.md) §4.6.
 
 ## Test suites

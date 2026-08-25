@@ -167,6 +167,12 @@ Every deploy after that is just:
 /root/bpro-hrms-hcm/deploy/deploy.sh
 ```
 
+The script now also validates the merged Compose config before touching
+the live stack, warns if `.env` is more permissive than `chmod 600`, and
+appends a timestamped line to `logs/deploy/history.log` after every
+successful deploy so you have a local audit trail of what SHA/database
+went live when.
+
 If it's co-hosted with another Caddy instance (see below), set
 `DEPLOY_MODE=shared-caddy` in `.env`; the script then skips this stack's
 own `caddy` service, matching the manual sequence documented next.
@@ -235,14 +241,19 @@ configuring, before relying on it for anything real.
 **No backup runs automatically — you must schedule one.**
 `scripts/backup_db.sh` dumps both the Postgres database and the Odoo
 filestore (attachments, generated PDFs — a database-only backup is
-incomplete) to a timestamped directory under `backups/`.
+incomplete) to a timestamped directory under `backups/`. Each backup now
+also includes:
+
+- `SHA256SUMS` for integrity verification during restore
+- `metadata.env` with the source database name, creation time, git SHA,
+  retention, and whether a filestore archive was present
 
 ```bash
 # One-off backup:
 ./scripts/backup_db.sh <db_name>
 
 # Scheduled via cron - e.g. daily at 02:00:
-0 2 * * * cd /path/to/bpro-hrms-hcm && ./scripts/backup_db.sh <db_name> >> /var/log/bpro-backup.log 2>&1
+0 2 * * * cd /path/to/bpro-hrms-hcm && BACKUP_RETENTION_DAYS=30 ./scripts/backup_db.sh <db_name> >> /var/log/bpro-backup.log 2>&1
 ```
 
 Copy the `backups/` directory (or wherever you point it) to storage
@@ -254,6 +265,20 @@ to what it's backing up doesn't survive a disk failure.
 ```bash
 ./scripts/restore_db.sh backups/<db_name>_<timestamp> <scratch_db_name>
 ```
+
+`restore_db.sh` now verifies `SHA256SUMS` automatically when present and
+terminates existing sessions before dropping the target database, which
+makes scratch-restore rehearsals more reliable.
+
+**Rehearse the full restore + Odoo boot path regularly:**
+
+```bash
+./scripts/verify_backup.sh backups/<db_name>_<timestamp> <scratch_db_name>
+```
+
+That command restores the backup into a scratch database, boots Odoo
+once against it, runs a simple SQL smoke check, and deletes the scratch
+database again unless you pass `--keep-restored-db`.
 
 A backup nobody has ever restored is a hope, not a backup.
 
@@ -279,6 +304,9 @@ offenders at the firewall.
    `docker-compose.prod.yml`).
 4. `systemctl restart fail2ban`, then `fail2ban-client status
    odoo-auth` to confirm the jail is active.
+5. Install the sample logrotate policy from `deploy/logrotate.odoo`
+   into `/etc/logrotate.d/` (after fixing the path) so Odoo's bind-mounted
+   log file does not grow forever and eventually fill the disk.
 
 Default policy: 5 failed logins in 10 minutes bans the IP for 1 hour —
 adjust `maxretry`/`findtime`/`bantime` in the jail file to the client's
@@ -296,13 +324,13 @@ the same box cannot). Not a coding task — pick one:
 
 - **[healthchecks.io](https://healthchecks.io)** or
   **[UptimeRobot](https://uptimerobot.com)** (both have workable free
-  tiers) — point either at `https://<the client's domain>/web/login`
+  tiers) — point either at `https://<the client's domain>/web/health`
   on a 5-minute interval, and set it to alert (email/SMS/Slack) on
   failure or on an unexpected HTTP status.
-- Odoo doesn't ship a dedicated `/health` endpoint in Community, but
-  `/web/login` returning HTTP 200 is a solid enough proxy — it means
-  Odoo, Postgres, and Caddy's TLS are all working, not just that a
-  port is open.
+- This repo's production stack already uses `/web/health` for the Odoo
+  container healthcheck and `deploy/deploy.sh` uses the same endpoint
+  for its post-deploy smoke test, so external monitors should follow the
+  same convention.
 - If the client already runs infrastructure monitoring (Datadog, a
   Grafana/Prometheus stack, etc.), add this instance as one more
   target there instead of a separate standalone tool.
