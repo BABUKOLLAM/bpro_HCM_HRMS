@@ -1,9 +1,12 @@
 import base64
+import threading
 from calendar import monthrange
 from datetime import date
 
 from odoo import fields, models
 from odoo.exceptions import UserError
+
+_esi_period_cache = threading.local()
 
 
 class HrPayslip(models.Model):
@@ -29,8 +32,28 @@ class HrPayslip(models.Model):
         For the first payslip in a period (no prior confirmed payslip to
         anchor from), falls back to the plain threshold test on
         current_gross - same behaviour as before for that first month.
+
+        The result is cached on a thread-local keyed by (cursor id,
+        payslip id, current_gross) to avoid a second identical DB search
+        when both ESI_EE and ESI_ER conditions evaluate the same payslip
+        in the same transaction.
         """
         self.ensure_one()
+
+        # Thread-local cache: keyed by (cursor id, payslip id, gross) so it
+        # is scoped to this transaction and never bleeds across requests.
+        if not hasattr(_esi_period_cache, "data"):
+            _esi_period_cache.data = {}
+        cache_key = (id(self.env.cr), self.id, current_gross)
+        if cache_key in _esi_period_cache.data:
+            return _esi_period_cache.data[cache_key]
+
+        result = self._bpro_esi_period_eligible_compute(current_gross)
+        _esi_period_cache.data[cache_key] = result
+        return result
+
+    def _bpro_esi_period_eligible_compute(self, current_gross):
+        """Uncached worker for bpro_esi_period_eligible."""
         threshold = self.contract_id.company_id.esi_wage_threshold
         slip_date = self.date_from
 

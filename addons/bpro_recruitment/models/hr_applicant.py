@@ -30,7 +30,7 @@ class HrApplicant(models.Model):
         # WhatsApp notification to the HOD's mobile (if a provider is
         # configured on the company). Graceful no-op when not configured.
         hod_employee = self.department_id.manager_id
-        phone = hod_employee.mobile_phone or hod_employee.work_phone if hod_employee else None
+        phone = (hod_employee.mobile_phone or hod_employee.work_phone) if hod_employee else None
         if phone:
             msg = (
                 f"Interview scheduled: {self.partner_name or 'candidate'} "

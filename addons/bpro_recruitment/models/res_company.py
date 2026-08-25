@@ -1,4 +1,8 @@
+import logging
+
 from odoo import fields, models
+
+_logger = logging.getLogger(__name__)
 
 
 class ResCompany(models.Model):
@@ -80,9 +84,6 @@ class ResCompany(models.Model):
         self.ensure_one()
         if self.whatsapp_provider == "none" or not to_phone:
             return False
-
-        import logging
-        _logger = logging.getLogger(__name__)
 
         if self.whatsapp_provider == "meta":
             # Meta Cloud API — send a text message template.
