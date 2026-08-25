@@ -12,6 +12,24 @@
                         <field name="joining_report_sla"/>
                     </group>
                 </page>
+                <page string="WhatsApp Notifications" name="bpro_whatsapp">
+                    <group string="Provider">
+                        <field name="whatsapp_provider"/>
+                        <field name="whatsapp_from_phone"
+                               attrs="{'invisible': [('whatsapp_provider', '=', 'none')]}"/>
+                        <field name="whatsapp_api_token" password="True"
+                               attrs="{'invisible': [('whatsapp_provider', '=', 'none')]}"/>
+                        <field name="whatsapp_meta_phone_number_id"
+                               attrs="{'invisible': [('whatsapp_provider', '!=', 'meta')]}"/>
+                    </group>
+                    <p class="text-muted"
+                       attrs="{'invisible': [('whatsapp_provider', '!=', 'none')]}">
+                        Set a provider above to enable WhatsApp notifications for
+                        offer delivery and interview scheduling alongside the
+                        existing email channel. Contact your WhatsApp Business API
+                        vendor (Meta, Twilio, or Gupshup) for credentials.
+                    </p>
+                </page>
             </notebook>
         </field>
     </record>

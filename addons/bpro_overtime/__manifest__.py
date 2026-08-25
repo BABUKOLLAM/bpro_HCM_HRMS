@@ -9,21 +9,19 @@ company choosing (per policy) between the two lawful compensations:
 * PAY mode: an OT salary rule pays approved overtime hours at
   hourly-gross x multiplier. The multiplier is company-configurable,
   seeded at 2.0 - Factories Act 1948 s59's "twice the ordinary rate of
-  wages" for factory workers. The hourly ordinary rate is the
-  UNPRORATED contracted monthly gross / (26 x 8) - the statutory
-  26-day/8-hour divisor convention, deliberately not the LOP-prorated
-  figure, since the ordinary rate of wages doesn't shrink because the
-  employee was absent on other days. NET is extended (cross-module
-  noupdate override, same technique as the LOP chain) to
-  GROSS + OT - DED.
+  wages" for factory workers. The hourly ordinary rate is determined by
+  employment type:
+  - CTC-based (Permanent, FTC, Trainee): UNPRORATED monthly gross /
+    (26 x 8) - the statutory divisor convention.
+  - Daily Wage: daily_wage_rate / 8 - the per-hour equivalent of the
+    contracted daily rate.
+  NET is extended (cross-module noupdate override, same technique as
+  the LOP chain) to GROSS + OT - DED.
 
-  Honest limitation, documented not hidden: OT wages are statutorily
-  part of the ESI contribution base (though excluded from the
-  eligibility-threshold test). The ESI rules compute on GROSS, which
-  does not include OT - contributions on OT are therefore not yet
-  levied. This joins the known ESI contribution-period continuity gap
-  from R3.3 as an ESI refinement to do together, deliberately not
-  half-fixed here.
+  ESI on OT wages: OT pay is included in the ESI contribution base
+  as required (ESI Act s.2(22)). OT is excluded from the eligibility
+  threshold test only - once an employee qualifies, ESI is levied on
+  GROSS + OT.
 
 * COMP-OFF mode: a conversion wizard turns approved, not-yet-converted
   overtime hours into validated Compensatory Off leave allocations

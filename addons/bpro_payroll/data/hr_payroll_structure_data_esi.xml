@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
-        ESI wage base is GROSS, not Basic - unlike PF, ESI covers total
-        wages including allowances. No capping helper needed: unlike PF's
-        capped/full_basic choice, ESI is a simple threshold test - either
-        gross wages are at or below esi_wage_threshold and ESI applies in
-        full on gross, or they aren't and it doesn't apply at all (no
-        partial/capped contribution). Sequenced 78-79, after the PF block
-        (72-77) and before NET (80) so ESI_EE lands in categories.DED.
+        ESI wage base is GROSS + OT (total wages including overtime).
+        The eligibility threshold test uses GROSS only - overtime is
+        statutorily excluded from the initial eligibility test but IS
+        part of the contribution base once the employee qualifies.
+        The contribution-period continuity check is via
+        payslip.bpro_esi_period_eligible(categories.GROSS): once an
+        employee is covered at the start of April or October, they
+        stay covered through the full half-year even if a mid-period
+        raise pushes their gross over the threshold that month.
+        Sequenced 78-79, after the OT block (71) and PF block (72-77)
+        and before NET (80) so ESI_EE lands in categories.DED.
     -->
 
     <record id="rule_esi_ee" model="hr.salary.rule">
@@ -16,9 +20,9 @@
         <field name="sequence" eval="78"/>
         <field name="category_id" ref="salary_rule_category_esi_ee"/>
         <field name="condition_select">python</field>
-        <field name="condition_python">result = contract.esi_applicable and categories.GROSS &lt;= contract.company_id.esi_wage_threshold</field>
+        <field name="condition_python">result = contract.esi_applicable and payslip.bpro_esi_period_eligible(categories.GROSS)</field>
         <field name="amount_select">code</field>
-        <field name="amount_python_compute">result = categories.GROSS * (contract.company_id.esi_employee_rate / 100.0)</field>
+        <field name="amount_python_compute">result = (categories.GROSS + categories.OT) * (contract.company_id.esi_employee_rate / 100.0)</field>
     </record>
 
     <record id="rule_esi_er" model="hr.salary.rule">
@@ -27,9 +31,9 @@
         <field name="sequence" eval="79"/>
         <field name="category_id" ref="salary_rule_category_esi_er"/>
         <field name="condition_select">python</field>
-        <field name="condition_python">result = contract.esi_applicable and categories.GROSS &lt;= contract.company_id.esi_wage_threshold</field>
+        <field name="condition_python">result = contract.esi_applicable and payslip.bpro_esi_period_eligible(categories.GROSS)</field>
         <field name="amount_select">code</field>
-        <field name="amount_python_compute">result = categories.GROSS * (contract.company_id.esi_employer_rate / 100.0)</field>
+        <field name="amount_python_compute">result = (categories.GROSS + categories.OT) * (contract.company_id.esi_employer_rate / 100.0)</field>
     </record>
 
     <record id="structure_india_ctc" model="hr.payroll.structure">

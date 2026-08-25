@@ -43,7 +43,9 @@ for example - the two fields are orthogonal on purpose, not merged.
   days worked, so applying LOP on top would double-penalize the same
   absence. HRA still computes as its usual % of Basic - no special
   case needed there, since Basic already carries the right base
-  figure either way.
+  figure either way. Overtime for Daily Wage contracts uses
+  daily_wage_rate / 8 as the hourly rate (bpro_overtime handles this
+  when both modules are installed).
 
 * Contract Labour: PF/ESI default to NOT applicable (statutorily the
   labour contractor's own establishment, not the principal employer's,
@@ -51,11 +53,7 @@ for example - the two fields are orthogonal on purpose, not merged.
   see KNOWN_LIMITATIONS.md. Workers in this category are typically NOT
   expected to be run through this payroll at all.
 
-Known follow-up, documented not silently ignored: bpro_overtime's OT
-rate is derived from CTC-implied monthly gross, which is undefined for
-a Daily Wage contract (no CTC set) - OT for daily-wage workers would
-need its own daily-rate-based calculation, not built here. See
-KNOWN_LIMITATIONS.md.
+
 """,
     "version": "18.0.1.0.0",
     "category": "Human Resources",

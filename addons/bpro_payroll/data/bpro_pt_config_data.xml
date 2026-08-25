@@ -219,5 +219,141 @@
         <field name="upper_bound">0</field>
         <field name="amount">1250</field>
     </record>
+    <!-- ================= WEST BENGAL (monthly) ================= -->
+    <!-- Slabs for wage earners (salaried employees), cross-checked
+         2026-08-25 against multiple sources (cleartax, bankbazaar).
+         WB PT is unique in having a different slab for women earning
+         below 25,000 (exempt) vs men at the same level; this table
+         uses the standard/male slab - confirm the client's
+         workforce composition before go-live. No topup month
+         for WB (it has a two-tier top slab that together totals
+         Rs.2,500/year at the 200/month rate). -->
+    <record id="pt_config_west_bengal" model="bpro.pt.config">
+        <field name="name">West Bengal</field>
+        <field name="state_id" ref="base.state_in_wb"/>
+        <field name="periodicity">monthly</field>
+        <field name="note">Standard/male slab table. Women earning up to
+            Rs.25,000/month are exempt under a separate notification -
+            if a significant part of the client's workforce is female,
+            verify the applicable slab for each employee before go-live.
+            Verify current slabs against the West Bengal PT gazette before
+            go-live; slabs have not changed recently but confirm.
+        </field>
+    </record>
+    <record id="pt_slab_wb_1" model="bpro.pt.slab.line">
+        <field name="config_id" ref="pt_config_west_bengal"/>
+        <field name="lower_bound">0</field>
+        <field name="upper_bound">8500</field>
+        <field name="amount">0</field>
+    </record>
+    <record id="pt_slab_wb_2" model="bpro.pt.slab.line">
+        <field name="config_id" ref="pt_config_west_bengal"/>
+        <field name="lower_bound">8501</field>
+        <field name="upper_bound">10000</field>
+        <field name="amount">90</field>
+    </record>
+    <record id="pt_slab_wb_3" model="bpro.pt.slab.line">
+        <field name="config_id" ref="pt_config_west_bengal"/>
+        <field name="lower_bound">10001</field>
+        <field name="upper_bound">15000</field>
+        <field name="amount">110</field>
+    </record>
+    <record id="pt_slab_wb_4" model="bpro.pt.slab.line">
+        <field name="config_id" ref="pt_config_west_bengal"/>
+        <field name="lower_bound">15001</field>
+        <field name="upper_bound">25000</field>
+        <field name="amount">130</field>
+    </record>
+    <record id="pt_slab_wb_5" model="bpro.pt.slab.line">
+        <field name="config_id" ref="pt_config_west_bengal"/>
+        <field name="lower_bound">25001</field>
+        <field name="upper_bound">40000</field>
+        <field name="amount">150</field>
+    </record>
+    <record id="pt_slab_wb_6" model="bpro.pt.slab.line">
+        <field name="config_id" ref="pt_config_west_bengal"/>
+        <field name="lower_bound">40001</field>
+        <field name="upper_bound">0</field>
+        <field name="amount">200</field>
+    </record>
+
+    <!-- ================= MAHARASHTRA (monthly) ================= -->
+    <!-- Maharashtra PT slabs, FY 2025-26 rates cross-checked 2026-08-25
+         against cleartax and greythr (both agree). Upper threshold for
+         nil slab: Rs.7,500. Topup month is February (Rs.300 instead of
+         Rs.200, totalling Rs.2,500/year for the top band). Note: women
+         earning up to Rs.10,000/month are exempt in Maharashtra - same
+         caveat as WB, confirm workforce composition before go-live. -->
+    <record id="pt_config_maharashtra" model="bpro.pt.config">
+        <field name="name">Maharashtra</field>
+        <field name="state_id" ref="base.state_in_mh"/>
+        <field name="periodicity">monthly</field>
+        <field name="note">Women earning up to Rs.10,000/month are exempt
+            from PT in Maharashtra - if the client has female employees
+            in the Rs.7,501-10,000 band, they should NOT have PT applied.
+            This module does not distinguish by gender; HR should manually
+            exclude those employees using the PT State field (leave blank).
+            Verify current slabs against the Maharashtra PT gazette before
+            go-live.
+        </field>
+    </record>
+    <record id="pt_slab_mh_1" model="bpro.pt.slab.line">
+        <field name="config_id" ref="pt_config_maharashtra"/>
+        <field name="lower_bound">0</field>
+        <field name="upper_bound">7500</field>
+        <field name="amount">0</field>
+    </record>
+    <record id="pt_slab_mh_2" model="bpro.pt.slab.line">
+        <field name="config_id" ref="pt_config_maharashtra"/>
+        <field name="lower_bound">7501</field>
+        <field name="upper_bound">10000</field>
+        <field name="amount">175</field>
+    </record>
+    <record id="pt_slab_mh_3" model="bpro.pt.slab.line">
+        <field name="config_id" ref="pt_config_maharashtra"/>
+        <field name="lower_bound">10001</field>
+        <field name="upper_bound">0</field>
+        <field name="amount">200</field>
+        <field name="topup_month">2</field>
+        <field name="topup_amount">300</field>
+    </record>
+
+    <!-- ================= TELANGANA (monthly) ================= -->
+    <!-- Telangana PT slabs - same rate structure as Andhra Pradesh
+         (Telangana was carved from AP in 2014 and retained the same
+         PT schedule). Cross-checked 2026-08-25 against greythr and
+         cleartax. Topup month is March (Rs.300 instead of Rs.200,
+         totalling Rs.2,500/year). -->
+    <record id="pt_config_telangana" model="bpro.pt.config">
+        <field name="name">Telangana</field>
+        <field name="state_id" ref="base.state_in_tg"/>
+        <field name="periodicity">monthly</field>
+        <field name="note">Same slab structure as Andhra Pradesh - Telangana
+            retained AP's PT schedule after the 2014 bifurcation. Verify
+            current slabs against the Telangana PT gazette before go-live;
+            the state may diverge from AP's slabs in future gazette
+            notifications.
+        </field>
+    </record>
+    <record id="pt_slab_tg_1" model="bpro.pt.slab.line">
+        <field name="config_id" ref="pt_config_telangana"/>
+        <field name="lower_bound">0</field>
+        <field name="upper_bound">15000</field>
+        <field name="amount">0</field>
+    </record>
+    <record id="pt_slab_tg_2" model="bpro.pt.slab.line">
+        <field name="config_id" ref="pt_config_telangana"/>
+        <field name="lower_bound">15001</field>
+        <field name="upper_bound">20000</field>
+        <field name="amount">150</field>
+    </record>
+    <record id="pt_slab_tg_3" model="bpro.pt.slab.line">
+        <field name="config_id" ref="pt_config_telangana"/>
+        <field name="lower_bound">20001</field>
+        <field name="upper_bound">0</field>
+        <field name="amount">200</field>
+        <field name="topup_month">3</field>
+        <field name="topup_amount">300</field>
+    </record>
 
 </odoo>

@@ -77,11 +77,6 @@ class BproJobOffer(models.Model):
 
     def _bpro_send_offer_email(self):
         self.ensure_one()
-        # Email is the working channel for R4.3. WhatsApp was explicitly
-        # deferred (2026-08-12 scoping decision) pending the client's
-        # WhatsApp Business API credentials - this is the single place a
-        # WhatsApp send would plug in alongside this email once that
-        # account exists, not a rebuild.
         url = self.get_portal_url()
         base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url")
         link = f"{base_url}{url}"
@@ -96,6 +91,21 @@ class BproJobOffer(models.Model):
                 f'here: <a href="{link}">{link}</a></p>'
             ),
         }).send()
+        # WhatsApp notification alongside email: sends only if a provider
+        # is configured on the company (see res.company.whatsapp_provider).
+        # Falls back gracefully to email-only when provider is 'none' or
+        # the applicant has no mobile number on file.
+        phone = (
+            self.applicant_id.partner_mobile
+            or self.applicant_id.partner_phone
+        )
+        if phone:
+            self.company_id.sudo()._bpro_whatsapp_send(
+                phone,
+                f"Dear {self.applicant_id.partner_name or 'Candidate'}, "
+                f"you have received an offer for {self.proposed_designation}. "
+                f"Review and respond here: {link}",
+            )
 
     def action_accept_from_portal(self):
         self.ensure_one()

@@ -27,3 +27,14 @@ class HrApplicant(models.Model):
             ),
             partner_ids=[hod_user.partner_id.id],
         )
+        # WhatsApp notification to the HOD's mobile (if a provider is
+        # configured on the company). Graceful no-op when not configured.
+        hod_employee = self.department_id.manager_id
+        phone = hod_employee.mobile_phone or hod_employee.work_phone if hod_employee else None
+        if phone:
+            msg = (
+                f"Interview scheduled: {self.partner_name or 'candidate'} "
+                f"({evaluation.interview_type}) with "
+                f"{evaluation.interviewer_id.name} on {evaluation.interview_datetime}."
+            )
+            self.env.company.sudo()._bpro_whatsapp_send(phone, msg)
