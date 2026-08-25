@@ -63,9 +63,9 @@ log() { echo "[deploy $(date '+%Y-%m-%d %H:%M:%S')] $*"; }
 if [ ! -f "$REPO_DIR/.env" ]; then
     cat >&2 <<'EOF'
 [deploy] FATAL: .env not found at the repo root.
-Create it once from .env.example, fill in the real values, then:
+Create it once from .env.example, fill in the real values:
   chmod 600 .env
-and then re-run this script.
+Then re-run this script.
 EOF
     exit 1
 fi
@@ -125,16 +125,17 @@ replacements = {
 lines = []
 for line in content.splitlines(keepends=True):
     stripped = line.lstrip()
+    leading = line[: len(line) - len(stripped)]
     for prefix, value in replacements.items():
         if stripped.startswith((";", "#")):
             break
-        if line.startswith(prefix):
+        if stripped.startswith(prefix):
             newline = ""
             if line.endswith("\r\n"):
                 newline = "\r\n"
             elif line.endswith("\n"):
                 newline = "\n"
-            line = f"{prefix}{value}{newline}"
+            line = f"{leading}{prefix}{value}{newline}"
             break
     lines.append(line)
 with path.open("w", newline="") as handle:
