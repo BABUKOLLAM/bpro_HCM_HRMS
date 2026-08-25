@@ -1,0 +1,78 @@
+# FieldOpsPro — standalone Docker Compose stack
+#
+# This is a SEPARATE programme from bpro HCM/HRMS.  Both run on the
+# same Hostinger VPS2, sharing a single Caddy reverse-proxy container
+# that handles HTTPS for both domains:
+#
+#   www.bprohrms.com   → bpro HCM/HRMS  (odoo container, ports 8069/8072)
+#   www.fieldopspro.in → FieldOpsPro     (fieldops-odoo container, ports 8079/8082)
+#
+# PORT ASSIGNMENT (must not clash with the HRMS stack):
+#   Main app  : 8079   (HRMS uses 8069)
+#   Longpoll  : 8082   (HRMS uses 8072)
+#
+# HOW TO START (on the VPS, from this directory):
+#   docker compose up -d
+#
+# After starting, Caddy (running in the HRMS stack) will automatically
+# route www.fieldopspro.in traffic to the fieldops-odoo container via
+# the shared "caddy_net" Docker network.  Make sure that network exists:
+#   docker network create caddy_net     # one-time setup if not already present
+#
+# DNS prerequisite: fieldopspro.in and www.fieldopspro.in must both have
+# an A record pointing at this VPS's public IP address.
+
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fieldops_prod
+      POSTGRES_USER: fieldops
+      POSTGRES_PASSWORD: ${FIELDOPS_DB_PASSWORD}
+    volumes:
+      - fieldops-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fieldops -d fieldops_prod"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  odoo:
+    # Replace with whatever Odoo/FieldOpsPro image you use
+    image: odoo:17
+    container_name: fieldops-odoo
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      HOST: db
+      PORT: 5432
+      USER: fieldops
+      PASSWORD: ${FIELDOPS_DB_PASSWORD}
+    ports:
+      # Exposed only on localhost - Caddy (on caddy_net) reaches the
+      # container by name, not by host port.  These host bindings are
+      # purely for local/debug access; they must not clash with HRMS.
+      - "127.0.0.1:8079:8069"
+      - "127.0.0.1:8082:8072"
+    volumes:
+      - fieldops-data:/var/lib/odoo
+      - ./addons:/mnt/extra-addons
+      - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
+      - ./logs/odoo:/var/log/odoo
+    command: odoo -c /etc/odoo/odoo.conf
+    networks:
+      default: {}
+      caddy_net:
+        aliases:
+          - fieldops-odoo
+
+networks:
+  caddy_net:
+    external: true
+
+volumes:
+  fieldops-db-data:
+  fieldops-data:

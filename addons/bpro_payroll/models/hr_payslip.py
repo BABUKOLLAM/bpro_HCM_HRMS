@@ -1,7 +1,12 @@
 import base64
+import threading
+from calendar import monthrange
+from datetime import date
 
 from odoo import fields, models
 from odoo.exceptions import UserError
+
+_esi_period_cache = threading.local()
 
 
 class HrPayslip(models.Model):
@@ -16,6 +21,74 @@ class HrPayslip(models.Model):
     # an explicit default is the supported way to fix this without
     # touching the vendored module.
     credit_note = fields.Boolean(default=False)
+
+    def bpro_esi_period_eligible(self, current_gross):
+        """ESI contribution-period continuity: once an employee is covered
+        at the start of a contribution period (April 1 or October 1), they
+        stay covered for the full period even if a mid-period raise pushes
+        their gross above the threshold. The threshold is re-tested only at
+        the start of each new period.
+
+        For the first payslip in a period (no prior confirmed payslip to
+        anchor from), falls back to the plain threshold test on
+        current_gross - same behaviour as before for that first month.
+
+        The result is cached on a thread-local keyed by (cursor id,
+        payslip id, current_gross) to avoid a second identical DB search
+        when both ESI_EE and ESI_ER conditions evaluate the same payslip
+        in the same transaction.
+        """
+        self.ensure_one()
+
+        # Thread-local cache: keyed by (cursor id, payslip id, gross) so it
+        # is scoped to this transaction and never bleeds across requests.
+        if not hasattr(_esi_period_cache, "data"):
+            _esi_period_cache.data = {}
+        cache_key = (id(self.env.cr), self.id, current_gross)
+        if cache_key in _esi_period_cache.data:
+            return _esi_period_cache.data[cache_key]
+
+        result = self._bpro_esi_period_eligible_compute(current_gross)
+        _esi_period_cache.data[cache_key] = result
+        return result
+
+    def _bpro_esi_period_eligible_compute(self, current_gross):
+        """Uncached worker for bpro_esi_period_eligible."""
+        threshold = self.contract_id.company_id.esi_wage_threshold
+        slip_date = self.date_from
+
+        # Determine this payslip's contribution period start
+        month = slip_date.month
+        year = slip_date.year
+        if 4 <= month <= 9:
+            period_start = date(year, 4, 1)
+        elif month >= 10:
+            period_start = date(year, 10, 1)
+        else:  # Jan-Mar: Oct-Mar period, started in the previous year
+            period_start = date(year - 1, 10, 1)
+
+        # If this IS the first month of the period, no prior payslip
+        # exists in the period - fall back to the plain threshold test.
+        if slip_date.month == period_start.month and slip_date.year == period_start.year:
+            return current_gross <= threshold
+
+        # Search for any confirmed payslip from the first month of the
+        # period for this contract.
+        last_day_of_start_month = monthrange(period_start.year, period_start.month)[1]
+        period_first_month_end = period_start.replace(day=last_day_of_start_month)
+        first_slip = self.env["hr.payslip"].search([
+            ("contract_id", "=", self.contract_id.id),
+            ("state", "=", "done"),
+            ("date_from", ">=", period_start),
+            ("date_to", "<=", period_first_month_end),
+        ], order="date_from asc", limit=1)
+
+        if not first_slip:
+            # No confirmed anchor slip: fall back to plain threshold test.
+            return current_gross <= threshold
+
+        esi_line = first_slip.line_ids.filtered(lambda l: l.code == "ESI_EE")
+        return bool(esi_line and sum(esi_line.mapped("total")) > 0)
 
     def action_email_payslip(self):
         """Push distribution (R6.2): email each confirmed slip's PDF to

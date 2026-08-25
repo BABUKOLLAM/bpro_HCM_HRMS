@@ -115,4 +115,61 @@
         <field name="employer_amount">70</field>
     </record>
 
+    <!-- ================= TELANGANA (annual) ================= -->
+    <!-- Telangana Labour Welfare Fund Act - same rate as AP
+         (retained after the 2014 bifurcation). Cross-checked 2026-08-25
+         against greythr. Deduction in December, deposit by 31 January.
+         Verify against the Telangana LWF Board notification before
+         go-live; the state may diverge from AP rates in future
+         notifications. -->
+    <record id="lwf_config_telangana" model="bpro.lwf.config">
+        <field name="name">Telangana</field>
+        <field name="state_id" ref="base.state_in_tg"/>
+        <field name="periodicity">annual</field>
+        <field name="charge_month_h1">12</field>
+        <field name="note">Same rate as Andhra Pradesh - Telangana retained
+            AP's LWF schedule after the 2014 bifurcation. Verify against
+            the Telangana LWF Board notification before go-live; the state
+            may diverge from AP's rates in future notifications.
+        </field>
+    </record>
+    <record id="lwf_slab_tg_1" model="bpro.lwf.slab.line">
+        <field name="config_id" ref="lwf_config_telangana"/>
+        <field name="lower_bound">0</field>
+        <field name="upper_bound">0</field>
+        <field name="employee_amount">30</field>
+        <field name="employer_amount">70</field>
+    </record>
+
+    <!-- ================= MAHARASHTRA (half-yearly) ================= -->
+    <!-- Maharashtra Labour Welfare Fund Act 1953.
+         Deduction and remittance twice a year: June 30 and December 31.
+         Rates per contribution period (half-year): EE Rs.25, ER Rs.75.
+         Cross-checked 2026-08-25 against greythr and factohr (both
+         agree on Rs.25/Rs.75 per half-year). Applies to establishments
+         with 5+ employees. Verify against the current Maharashtra LWF
+         notification before go-live; the monthly variant (Rs.6+Rs.12)
+         sometimes appears in older sources - the half-yearly Rs.25+Rs.75
+         is the current rate. -->
+    <record id="lwf_config_maharashtra" model="bpro.lwf.config">
+        <field name="name">Maharashtra</field>
+        <field name="state_id" ref="base.state_in_mh"/>
+        <field name="periodicity">half_yearly</field>
+        <field name="charge_month_h1">6</field>
+        <field name="charge_month_h2">12</field>
+        <field name="note">Maharashtra Labour Welfare Fund Act 1953.
+            Applicable to establishments with 5+ employees. Deduction and
+            remittance 30 June and 31 December. Some older sources cite a
+            monthly Rs.6+Rs.12 rate - the current half-yearly Rs.25+Rs.75
+            is what the Act currently specifies; verify before go-live.
+        </field>
+    </record>
+    <record id="lwf_slab_mh_1" model="bpro.lwf.slab.line">
+        <field name="config_id" ref="lwf_config_maharashtra"/>
+        <field name="lower_bound">0</field>
+        <field name="upper_bound">0</field>
+        <field name="employee_amount">25</field>
+        <field name="employer_amount">75</field>
+    </record>
+
 </odoo>

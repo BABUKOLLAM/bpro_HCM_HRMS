@@ -14,27 +14,20 @@ tests against hand-verified figures. These are things the suite
 
 ## Payroll / statutory
 
-### ESI contribution-period continuity is not enforced
-Real ESIC eligibility is fixed for a full contribution period (April–
-September or October–March) once an employee is covered — earning a
-raise mid-period does not remove them from ESI until the *next*
-period starts. This suite re-tests the wage-threshold each month
-instead. In practice this only produces a wrong result for an
-employee whose gross crosses the ESI threshold mid-period (a raise, or
-a heavy Loss-of-Pay month pulling gross back under the threshold) —
-most employees are unaffected. **Recommendation**: have payroll
-manually flag and continue ESI contribution for anyone who crosses the
-threshold mid-period, until this is built.
+### ESI contribution-period continuity
+~~ESI eligibility was re-tested each month.~~ **Fixed**: once an employee
+is covered at the start of a contribution period (April or October),
+they remain covered for the entire period even if a mid-period raise
+pushes their gross above the threshold. The threshold is only re-tested
+when a new period starts. The anchor is the first *confirmed* payslip
+of the period; if that payslip is still in draft, the month falls back
+to the plain threshold test.
 
-### ESI is not levied on overtime wages
-Overtime pay is statutorily part of the ESI contribution *base* (it's
-only excluded from the initial eligibility *test*). This suite's ESI
-calculation is based on Gross, which does not include the OT amount —
-so for employees with paid overtime, actual ESI contribution is
-understated by a small margin. **Recommendation**: for organisations
-paying overtime who also have ESI-covered employees, add a manual
-adjustment or flag this for a near-term fix before relying on the ESI
-filings for those employees.
+### ESI is levied on overtime wages *(previously not)*
+~~Overtime pay was excluded from the ESI contribution base.~~ **Fixed**:
+the ESI salary rules now use `GROSS + OT` as the contribution base.
+The *eligibility* test (whether the employee is covered at all) still
+uses GROSS only — OT is excluded from the threshold test per the Act.
 
 ### Statutory rate/slab data needs annual verification
 PF/ESI rates, Professional Tax slabs, Labour Welfare Fund rates, TDS
@@ -45,21 +38,29 @@ needs to check and update the seeded config at least once a year
 (TDS slabs, every financial year without exception).
 
 ### Professional Tax / Labour Welfare Fund coverage is partial
-Seeded for Kerala, Tamil Nadu, Karnataka, and Andhra Pradesh only —
-the four states the first deployment needed. A client operating
-elsewhere needs new configuration records added (the calculation
-engine supports any state; only the seed data is limited). See
-`docs/SETUP_GUIDE.md` §5.2.
+Now seeded for Kerala, Tamil Nadu, Karnataka, Andhra Pradesh,
+Telangana, Maharashtra, and West Bengal. A client operating in other
+states needs new configuration records added (the calculation engine
+supports any state; only the seed data is limited).
+See `docs/SETUP_GUIDE.md` §5.2.
 
-### Overtime pay is not correctly computed for Daily Wage contracts
-`bpro_overtime`'s OT rate is derived from CTC-implied monthly gross
-(`ctc_annual/12`), which is undefined for a Daily Wage contract — those
-use `daily_wage_rate` instead, set by `bpro_employment_type`. A Daily
-Wage employee's OT will compute to zero rather than error, which is
-silently wrong rather than loudly wrong. **Recommendation**: don't
-rely on the OT module for Daily Wage workers yet — compute their
-overtime manually (Factories Act: their own daily rate ÷ working
-hours, doubled) until a daily-rate-aware OT path is built.
+**Caveats for newly added states:**
+- **West Bengal PT**: women earning up to ₹25,000/month are exempt;
+  this module does not distinguish by gender — set the PT State field
+  blank for such employees.
+- **Maharashtra PT**: women earning up to ₹10,000/month are exempt —
+  same manual exclusion applies.
+- **Maharashtra LWF**: some older sources cite a monthly ₹6+₹12 rate;
+  the current (2025) rate is ₹25+₹75 per half-year — verify before
+  go-live.
+- **Telangana PT/LWF**: identical to AP at the time of seeding (rates
+  retained after the 2014 bifurcation) — verify current gazettes as
+  both states may diverge independently.
+
+### Overtime pay for Daily Wage contracts *(previously not computed)*
+~~Daily Wage OT computed to zero silently.~~ **Fixed**: OT for Daily
+Wage contracts now uses `daily_wage_rate / 8` as the hourly ordinary
+rate (Factories Act basis), multiplied by the company's OT multiplier.
 
 ### Contract Labour is flagged, not fully modelled
 `bpro_employment_type`'s "Contract Labour" category defaults PF/ESI
@@ -76,13 +77,18 @@ tracked at all.
 
 ## Recruitment
 
-### WhatsApp notifications are not wired up
-Interview scheduling and offer delivery currently notify by email
-only. The code has a single, clearly marked integration point where a
-WhatsApp Business API send would plug in once the client has API
-credentials (Meta Cloud API, Twilio, or Gupshup) — this was a
-deliberate scoping decision, not an oversight, made when no such
-account existed yet.
+### WhatsApp notifications are wired up but not yet live
+The WhatsApp notification skeleton is in place — offer delivery and
+interview scheduling now call `company._bpro_whatsapp_send()` after
+the email is sent. To activate it: set **WhatsApp Provider** on the
+company (Settings → Companies → WhatsApp Notifications tab), fill in
+the API token and sender phone, then the next offer send or interview
+notification will go through WhatsApp alongside email. Three providers
+are stubbed: Meta Cloud API, Twilio, Gupshup. A developer needs to
+implement the actual HTTP call in the relevant branch of
+`bpro_recruitment/models/res_company.py:_bpro_whatsapp_send()` once
+the client supplies API credentials — the integration point is clearly
+marked with a comment in each branch.
 
 ---
 

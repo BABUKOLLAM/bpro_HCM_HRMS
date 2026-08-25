@@ -102,3 +102,43 @@ class TestOvertime(TransactionCase):
         })
         with self.assertRaises(UserError):
             wizard.action_convert()
+
+    def test_daily_wage_ot_uses_daily_rate_not_ctc(self):
+        """A Daily Wage employee's OT hourly rate is daily_wage_rate / 8,
+        not derived from ctc_annual (which is undefined/zero for this
+        category - previously computed to zero silently)."""
+        self.company.ot_compensation = "pay"
+        self.company.ot_multiplier = 2.0
+        dw_employee = self.env["hr.employee"].create({
+            "name": "Daily Wage OT Employee",
+            "company_id": self.company.id,
+            "tz": "Asia/Kolkata",
+        })
+        dw_contract = self.env["hr.contract"].create({
+            "name": "Daily Wage OT contract",
+            "employee_id": dw_employee.id,
+            "wage": 500,
+            "employment_category": "daily_wage",
+            "daily_wage_rate": 600.0,
+            "struct_id": self.struct.id,
+            "date_start": date(2026, 1, 1),
+            "state": "open",
+        })
+        att = self.env["hr.attendance"].create({
+            "employee_id": dw_employee.id,
+            "check_in": datetime.combine(date(2026, 8, 3), time(3, 30)),
+            "check_out": datetime.combine(date(2026, 8, 3), time(16, 30)),
+        })
+        att.write({"overtime_status": "approved", "validated_overtime_hours": 4.0})
+
+        payslip = self.env["hr.payslip"].create({
+            "employee_id": dw_employee.id, "contract_id": dw_contract.id,
+            "struct_id": self.struct.id,
+            "date_from": date(2026, 8, 1), "date_to": date(2026, 8, 31),
+            "name": "Daily Wage OT slip",
+        })
+        payslip.compute_sheet()
+        lines = {line.code: line.total for line in payslip.line_ids}
+        # Hourly rate = 600 / 8 = 75; 4 hours x 2.0 multiplier = 600
+        expected = 4.0 * (600.0 / 8.0) * 2.0
+        self.assertAlmostEqual(lines.get("OT", 0.0), expected, places=2)
