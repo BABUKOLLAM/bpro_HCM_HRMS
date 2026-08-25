@@ -11,13 +11,12 @@
 # Usage (run from anywhere, on the VPS, as the user that owns the repo):
 #   /root/bpro-hrms-hcm/deploy/deploy.sh
 #
-# One-time setup before the first run: create a .env file at the repo
-# root (NOT committed - it's in .gitignore) containing:
-#   ODOO_ADMIN_PASSWD=<a real, strong password>
-# This is the ONLY place that secret lives now. config/odoo.prod.conf
-# keeps a harmless CHANGE-ME placeholder in git - this script overwrites
-# it with the real value from .env on every run, so a `git reset --hard`
-# can never again silently revert it to the public placeholder.
+# One-time setup before the first run: copy .env.example to .env and fill
+# in the real values for this specific deployment. This is the ONLY place
+# secrets and instance-specific names live now. config/odoo.prod.conf
+# keeps harmless CHANGE-ME placeholders in git - this script overwrites
+# them from .env on every run, so a `git reset --hard` can never again
+# silently revert a live instance to public placeholder values.
 
 set -euo pipefail
 
@@ -54,8 +53,6 @@ fi
 
 # --- Everything below only ever runs from the freshly re-exec'd copy ------
 
-COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.shared-caddy.yml"
-
 # Every module this suite ships, minus bpro_demo_data (evaluation-only,
 # must never run in production - see its own manifest for why).
 MODULES="bpro_approval,bpro_attendance,bpro_base,bpro_employment_type,bpro_ess,bpro_exit,bpro_hcm_dashboard,bpro_hr,bpro_hr_letters,bpro_hrms_portal,bpro_leave,bpro_lms,bpro_overtime,bpro_payroll,bpro_pms,bpro_probation,bpro_recruitment,bpro_shifts,bpro_statutory_filing,bpro_theme_switcher"
@@ -66,8 +63,7 @@ log() { echo "[deploy $(date '+%Y-%m-%d %H:%M:%S')] $*"; }
 if [ ! -f "$REPO_DIR/.env" ]; then
     cat >&2 <<'EOF'
 [deploy] FATAL: .env not found at the repo root.
-Create it once with:
-  echo "ODOO_ADMIN_PASSWD=$(openssl rand -base64 24)" > .env
+Create it once from .env.example, fill in the real values, then:
   chmod 600 .env
 Then re-run this script.
 EOF
@@ -81,12 +77,59 @@ if [ -z "${ODOO_ADMIN_PASSWD:-}" ]; then
     exit 1
 fi
 
-log "Re-applying admin_passwd from .env into config/odoo.prod.conf..."
-# Avoids `sed -i` on purpose - its in-place syntax differs between BSD
-# sed (macOS) and GNU sed (the Ubuntu VPS this actually runs on), and
-# write-to-temp-then-move works identically on both.
-sed "s|admin_passwd = .*|admin_passwd = $ODOO_ADMIN_PASSWD|" config/odoo.prod.conf > config/odoo.prod.conf.tmp
-mv config/odoo.prod.conf.tmp config/odoo.prod.conf
+if [ -z "${ODOO_DB_NAME:-}" ]; then
+    echo "[deploy] FATAL: ODOO_DB_NAME is empty in .env. Aborting." >&2
+    exit 1
+fi
+
+ODOO_DBFILTER="${ODOO_DBFILTER:-^${ODOO_DB_NAME}$}"
+
+case "${DEPLOY_MODE:-}" in
+    standalone)
+        if [ -z "${APP_DOMAIN:-}" ]; then
+            echo "[deploy] FATAL: APP_DOMAIN is required when DEPLOY_MODE=standalone." >&2
+            exit 1
+        fi
+        COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
+        ;;
+    shared-caddy)
+        if [ -z "${SHARED_CADDY_NETWORK:-}" ]; then
+            echo "[deploy] FATAL: SHARED_CADDY_NETWORK is required when DEPLOY_MODE=shared-caddy." >&2
+            exit 1
+        fi
+        if [ -z "${ODOO_SHARED_ALIAS:-}" ]; then
+            echo "[deploy] FATAL: ODOO_SHARED_ALIAS is required when DEPLOY_MODE=shared-caddy." >&2
+            exit 1
+        fi
+        COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.shared-caddy.yml"
+        ;;
+    *)
+        echo "[deploy] FATAL: DEPLOY_MODE must be either 'standalone' or 'shared-caddy' in .env." >&2
+        exit 1
+        ;;
+esac
+
+log "Re-applying instance settings from .env into config/odoo.prod.conf..."
+ODOO_ADMIN_PASSWD="$ODOO_ADMIN_PASSWD" ODOO_DB_NAME="$ODOO_DB_NAME" ODOO_DBFILTER="$ODOO_DBFILTER" python3 <<'PY'
+from pathlib import Path
+import os
+
+path = Path("config/odoo.prod.conf")
+content = path.read_text()
+replacements = {
+    "admin_passwd = ": os.environ["ODOO_ADMIN_PASSWD"],
+    "db_name = ": os.environ["ODOO_DB_NAME"],
+    "dbfilter = ": os.environ["ODOO_DBFILTER"],
+}
+lines = []
+for line in content.splitlines():
+    for prefix, value in replacements.items():
+        if line.startswith(prefix):
+            line = f"{prefix}{value}"
+            break
+    lines.append(line)
+path.write_text("\n".join(lines) + "\n")
+PY
 
 if grep -q "^admin_passwd = CHANGE-ME" config/odoo.prod.conf; then
     # Anchored to the admin_passwd line specifically - the file also
@@ -97,10 +140,15 @@ if grep -q "^admin_passwd = CHANGE-ME" config/odoo.prod.conf; then
     exit 1
 fi
 
+if grep -q "^db_name = CHANGE-ME" config/odoo.prod.conf || grep -q "^dbfilter = \^CHANGE-ME" config/odoo.prod.conf; then
+    echo "[deploy] FATAL: db_name/dbfilter in config/odoo.prod.conf still contain placeholders after substitution. Aborting." >&2
+    exit 1
+fi
+
 # --- 3. Bring up Postgres only, not odoo yet ------------------------------
 # Deliberately NOT starting the persistent odoo process here too. On a
 # brand-new database, the persistent process's own boot sequence races
-# the explicit install command below to CREATE DATABASE bpro_prod -
+# the explicit install command below to CREATE DATABASE $ODOO_DB_NAME -
 # confirmed directly: the exact same install command fails with
 # "duplicate key value violates ... pg_database_datname_index" when the
 # persistent container is already up, and succeeds cleanly when it
@@ -117,9 +165,9 @@ for i in $(seq 1 30); do
 done
 
 # --- 4. Install anything new, upgrade everything else -----------------------
-log "Installing/upgrading all modules: $MODULES"
+log "Installing/upgrading all modules into database '$ODOO_DB_NAME': $MODULES"
 $COMPOSE run --rm --no-deps odoo \
-    odoo -c /etc/odoo/odoo.prod.conf -d bpro_prod \
+    odoo -c /etc/odoo/odoo.prod.conf -d "$ODOO_DB_NAME" \
     -i "$MODULES" -u "$MODULES" \
     --without-demo=all --stop-after-init
 

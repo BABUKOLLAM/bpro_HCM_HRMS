@@ -11,18 +11,17 @@
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml \
 #     -f docker-compose.shared-caddy.yml up -d db odoo
 #
-# The external network name below ("deploy_default") and the alias
-# ("hrms-odoo") are specific to bpro's own production VPS - adjust both
-# to match whatever network/alias the other Caddy instance actually
-# expects on a different host.
+# The external network name and alias are intentionally env-driven so
+# every co-hosted deployment can keep its own distinct routing identity.
 services:
   odoo:
     networks:
       default: {}
-      deploy_default:
+      shared_caddy:
         aliases:
-          - hrms-odoo
+          - ${ODOO_SHARED_ALIAS:-hrms-odoo}
 
 networks:
-  deploy_default:
+  shared_caddy:
+    name: ${SHARED_CADDY_NETWORK:-deploy_default}
     external: true

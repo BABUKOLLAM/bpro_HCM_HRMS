@@ -103,12 +103,21 @@ Odoo's port 8069 directly and runs unencrypted HTTP. **Do not put this
 on the internet as-is.** For a real deployment:
 
 1. Point the client's domain's DNS A record at the server.
-2. Edit `deploy/Caddyfile` — replace the placeholder domain
-   (`hcm.example.com`) with the real one.
+2. Copy `.env.example` to `.env`, then fill in the real values for this
+   specific deployment:
+   - `COMPOSE_PROJECT_NAME` = a unique project name for this app on this
+     VPS (keeps its containers, networks, and volumes independent of
+     other programs)
+   - `DEPLOY_MODE` = `standalone` or `shared-caddy`
+   - `ODOO_ADMIN_PASSWD` = strong database-manager password
+   - `ODOO_DB_NAME` = this instance's production database name
+   - `APP_DOMAIN` for standalone mode, or `SHARED_CADDY_NETWORK` +
+     `ODOO_SHARED_ALIAS` for shared-Caddy mode
 3. Use `config/odoo.prod.conf` instead of the dev config — it has
    production-sized worker/memory settings, a hidden database-manager
-   screen, and commented-out SMTP settings (see the next section).
-   Fill in its `admin_passwd`, `db_name`, and `dbfilter` first.
+   screen, and commented-out SMTP settings (see the next section). Leave
+   its tracked placeholders alone; `deploy/deploy.sh` rewrites them from
+   `.env` on each deploy.
 4. Bring the stack up with both compose files together, which layers
    in a Caddy reverse proxy (automatic HTTPS via Let's Encrypt) and
    stops publishing Odoo's ports directly — only Caddy is
@@ -140,9 +149,17 @@ every module, restarts, and refuses to report success unless
 One-time setup, on the server, before the first run:
 
 ```bash
-echo "ODOO_ADMIN_PASSWD=$(openssl rand -base64 24)" > /root/bpro-hrms-hcm/.env
+cp /root/bpro-hrms-hcm/.env.example /root/bpro-hrms-hcm/.env
 chmod 600 /root/bpro-hrms-hcm/.env
 ```
+
+Then edit `/root/bpro-hrms-hcm/.env` with the real values for this
+instance. The important production-safety fields are:
+
+- `COMPOSE_PROJECT_NAME`: unique per program on the VPS
+- `DEPLOY_MODE`: `standalone` or `shared-caddy`
+- `ODOO_DB_NAME`: unique per production instance
+- `APP_DOMAIN` or `ODOO_SHARED_ALIAS`: unique per published site
 
 Every deploy after that is just:
 
@@ -150,9 +167,9 @@ Every deploy after that is just:
 /root/bpro-hrms-hcm/deploy/deploy.sh
 ```
 
-If it's co-hosted with another Caddy instance (see below), the script
-already accounts for that — it never starts this stack's own `caddy`
-service, matching the manual sequence documented next.
+If it's co-hosted with another Caddy instance (see below), set
+`DEPLOY_MODE=shared-caddy` in `.env`; the script then skips this stack's
+own `caddy` service, matching the manual sequence documented next.
 
 ### Co-hosting on a server that already runs a Caddy instance
 
@@ -164,9 +181,8 @@ service** — instead:
 
 1. Bring up only `db` and `odoo`, joined to the other project's
    existing Docker network under a distinct alias, using the
-   `docker-compose.shared-caddy.yml` overlay in this repo (edit the
-   external network name and alias inside it to match the other
-   project first):
+   `docker-compose.shared-caddy.yml` overlay in this repo. Set
+   `SHARED_CADDY_NETWORK` and `ODOO_SHARED_ALIAS` in `.env` first:
 
    ```bash
    docker compose -f docker-compose.yml -f docker-compose.prod.yml \
@@ -181,15 +197,15 @@ service** — instead:
    ```bash
    docker compose -f docker-compose.yml -f docker-compose.prod.yml \
      -f docker-compose.shared-caddy.yml run --rm --no-deps odoo \
-     odoo -c /etc/odoo/odoo.prod.conf -d bpro_prod -i <modules> \
+     odoo -c /etc/odoo/odoo.prod.conf -d <your_prod_db_name> -i <modules> \
      --without-demo=all --stop-after-init
    ```
 
 3. Add a new site block to the *other* project's Caddyfile pointing at
-   this stack's alias (e.g. `reverse_proxy hrms-odoo:8069`), separate
-   from its existing site block — never add this domain to an existing
-   block for a different site, or both domains will serve the same
-   backend. Validate before reloading, and reload (not restart) to
+   this stack's alias (e.g. `reverse_proxy <ODOO_SHARED_ALIAS>:8069`),
+   separate from its existing site block — never add this domain to an
+   existing block for a different site, or both domains will serve the
+   same backend. Validate before reloading, and reload (not restart) to
    avoid dropping the other site's live connections:
 
    ```bash

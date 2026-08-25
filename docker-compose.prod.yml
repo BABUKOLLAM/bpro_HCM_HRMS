@@ -42,6 +42,9 @@ services:
     restart: unless-stopped
     depends_on:
       - odoo
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+      ODOO_UPSTREAM_HOST: ${ODOO_UPSTREAM_HOST:-odoo}
     ports:
       - "80:80"
       - "443:443"

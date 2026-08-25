@@ -93,7 +93,10 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
 Layers in a Caddy reverse proxy (automatic HTTPS) and a
-production-sized Odoo config. Full walkthrough in
+production-sized Odoo config. Before first boot, copy
+`/home/runner/work/bpro-hrms-hcm/bpro-hrms-hcm/.env.example` to `.env`
+and set a unique `COMPOSE_PROJECT_NAME`, `ODOO_DB_NAME`, and either
+`APP_DOMAIN` or shared-Caddy settings for this specific instance. Full walkthrough in
 [`docs/SETUP_GUIDE.md`](docs/SETUP_GUIDE.md) §4.5.
 
 ## Backups
