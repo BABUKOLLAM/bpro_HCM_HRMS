@@ -96,8 +96,23 @@ Layers in a Caddy reverse proxy (automatic HTTPS) and a
 production-sized Odoo config. Before first boot, copy `.env.example` to
 `.env` and set a unique `COMPOSE_PROJECT_NAME`, `ODOO_DB_NAME`, and
 either `APP_DOMAIN` or shared-Caddy settings for this specific
-instance. Full walkthrough in
+instance. The production overlay also pins Postgres, Odoo, and Caddy by
+digest for reproducible deploys; update the `*_PROD_IMAGE` values in
+`.env` only when you intentionally want to roll to a reviewed upstream
+image. Full walkthrough in
 [`docs/SETUP_GUIDE.md`](docs/SETUP_GUIDE.md) §4.5.
+
+## Staging / UAT deployment
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.uat.yml up -d
+```
+
+This overlay keeps the stack local-only by default
+(`127.0.0.1:18069`/`18072`), but otherwise runs Odoo with the
+production config, restart policy, health check, logs mount, and the
+same digest-pinned Postgres/Odoo images used in production. It's meant
+for acceptance testing against a staging/UAT database before go-live.
 
 ## Backups
 
@@ -105,12 +120,15 @@ instance. Full walkthrough in
 ./scripts/backup_db.sh <db_name>        # back up
 ./scripts/restore_db.sh <backup_dir> <target_db_name>  # restore
 ./scripts/verify_backup.sh <backup_dir> <scratch_db_name>  # rehearse a restore end-to-end
+./scripts/verify_latest_backup.sh <db_name>  # rehearse the newest backup, for cron/systemd
 ```
 
 Nothing runs automatically — schedule `backup_db.sh` via cron and rehearse
 `verify_backup.sh` regularly against a scratch database. Set
 `BACKUP_RETENTION_DAYS` in the cron environment if the default 30-day
-retention is not right for that client. See
+retention is not right for that client. Sample scheduler entries for the
+latest-backup rehearsal live in `deploy/systemd/` and `deploy/cron.d/`.
+See
 [`docs/SETUP_GUIDE.md`](docs/SETUP_GUIDE.md) §4.6.
 
 ## Test suites

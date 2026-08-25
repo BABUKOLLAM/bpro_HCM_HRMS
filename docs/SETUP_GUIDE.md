@@ -118,6 +118,11 @@ on the internet as-is.** For a real deployment:
    screen, and commented-out SMTP settings (see the next section). Leave
    its tracked placeholders alone; `deploy/deploy.sh` rewrites them from
    `.env` on each deploy.
+   - The production overlay also pins Postgres, Odoo, and Caddy by
+    digest for reproducible deploys. Leave `POSTGRES_PROD_IMAGE`,
+    `ODOO_PROD_IMAGE`, and `CADDY_PROD_IMAGE` at their `.env.example`
+    defaults unless you intentionally want to roll to a reviewed
+    upstream image version.
 4. Bring the stack up with both compose files together, which layers
    in a Caddy reverse proxy (automatic HTTPS via Let's Encrypt) and
    stops publishing Odoo's ports directly — only Caddy is
@@ -130,6 +135,29 @@ on the internet as-is.** For a real deployment:
 Caddy needs ports 80 and 443 reachable from the internet (80 is used
 for the one-time ACME certificate challenge, then everything redirects
 to 443). No manual certificate renewal is needed — Caddy handles it.
+
+### Staging / UAT deployments on the same host
+
+The repo also ships a `docker-compose.uat.yml` overlay for a
+production-like but non-public instance used for UAT. It keeps Odoo
+bound to localhost on high ports by default (`127.0.0.1:18069` and
+`127.0.0.1:18072`), while still using `config/odoo.prod.conf`, restart
+policies, `/web/health`, the bind-mounted log path, and the same
+digest-pinned Postgres/Odoo images as production:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.uat.yml up -d
+```
+
+Recommended staging/UAT differences from production:
+
+- Use a distinct `COMPOSE_PROJECT_NAME` if this runs on the same host as
+  production, so networks/volumes don't collide.
+- Use a distinct database name (for example `acme_hrms_uat`) and load a
+  sanitized or otherwise approved copy of production-like data into it.
+- Keep it behind SSH tunnelling, VPN, or a separate reverse proxy if
+  external reviewers need access; the overlay intentionally does **not**
+  publish it directly on ports 80/443.
 
 ### Redeploying after the first install: use `deploy/deploy.sh`
 
@@ -279,6 +307,23 @@ makes scratch-restore rehearsals more reliable.
 That command restores the backup into a scratch database, boots Odoo
 once against it, runs a simple SQL smoke check, and deletes the scratch
 database again unless you pass `--keep-restored-db`.
+
+For unattended scheduling, use the helper that automatically picks the
+newest backup directory for a given database and generates a unique
+scratch-database name:
+
+```bash
+./scripts/verify_latest_backup.sh <db_name>
+```
+
+Sample scheduler entries are included for both common Linux styles:
+
+- `deploy/systemd/bpro-backup-verify.service`
+- `deploy/systemd/bpro-backup-verify.timer`
+- `deploy/cron.d/bpro-backup-verify`
+
+Adjust the sample paths, usernames, and database names before
+installing them on the host.
 
 A backup nobody has ever restored is a hope, not a backup.
 

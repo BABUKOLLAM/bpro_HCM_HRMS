@@ -8,6 +8,13 @@ checklist is for — walk through it with the client's own HR/payroll
 staff before the first real payroll run, on a staging copy of the
 database, not production.
 
+If you want a production-like but non-public app stack for that, use the
+repo's sample overlay:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.uat.yml up -d
+```
+
 Use a **staging database with realistic but non-final data** — either
 a handful of real employees the client is comfortable testing with, or
 fabricated but realistic ones (correct salary bands, real state

@@ -14,9 +14,11 @@
 # while still respecting a deliberate `docker compose stop`.
 services:
   db:
+    image: ${POSTGRES_PROD_IMAGE:-postgres:16@sha256:c1b3783309b6499c795eed7c20135a1a4d25cae1b575c3d52c6f536129a1b109}
     restart: unless-stopped
 
   odoo:
+    image: ${ODOO_PROD_IMAGE:-odoo:18@sha256:259fa933bf3ee7f3e375bd74d1e0bc28bd75955159723be477359e0fdb8acf67}
     restart: unless-stopped
     ports: !reset []
     command: odoo -c /etc/odoo/odoo.prod.conf
@@ -38,7 +40,7 @@ services:
       - ./logs/odoo:/var/log/odoo
 
   caddy:
-    image: caddy:2-alpine
+    image: ${CADDY_PROD_IMAGE:-caddy:2-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648}
     restart: unless-stopped
     depends_on:
       - odoo

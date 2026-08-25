@@ -1,0 +1,14 @@
+[Unit]
+Description=Verify the latest bpro HRMS backup can be restored
+Wants=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+# Adjust User, WorkingDirectory, DB_NAME, and paths for the actual host.
+User=root
+WorkingDirectory=/root/bpro-hrms-hcm
+Environment=DB_NAME=acme_hrms_prod
+Environment=BACKUPS_DIR=/root/bpro-hrms-hcm/backups
+Environment=SCRATCH_DB_PREFIX=acme_hrms_verify
+ExecStart=/usr/bin/env bash -lc './scripts/verify_latest_backup.sh "$DB_NAME" "$BACKUPS_DIR" "$SCRATCH_DB_PREFIX" >> /var/log/bpro-backup-verify.log 2>&1'

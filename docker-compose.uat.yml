@@ -1,0 +1,29 @@
+# Staging / UAT overlay - use alongside the base docker-compose.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.uat.yml up -d
+#
+# Mirrors production's Odoo config/logging/restart behavior closely
+# enough for acceptance testing, while keeping the instance off the
+# public internet by binding only to localhost on high ports.
+services:
+  db:
+    image: ${POSTGRES_PROD_IMAGE:-postgres:16@sha256:c1b3783309b6499c795eed7c20135a1a4d25cae1b575c3d52c6f536129a1b109}
+    restart: unless-stopped
+
+  odoo:
+    image: ${ODOO_PROD_IMAGE:-odoo:18@sha256:259fa933bf3ee7f3e375bd74d1e0bc28bd75955159723be477359e0fdb8acf67}
+    restart: unless-stopped
+    ports:
+      - "${UAT_BIND_HOST:-127.0.0.1}:${UAT_HTTP_PORT:-18069}:8069"
+      - "${UAT_BIND_HOST:-127.0.0.1}:${UAT_LONGPOLL_PORT:-18072}:8072"
+    command: odoo -c /etc/odoo/odoo.prod.conf
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; exit(0 if urllib.request.urlopen('http://localhost:8069/web/health', timeout=8).status == 200 else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    volumes:
+      - odoo-data:/var/lib/odoo
+      - ./config:/etc/odoo
+      - ./addons:/mnt/extra-addons
+      - ./logs/odoo:/var/log/odoo
