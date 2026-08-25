@@ -65,7 +65,7 @@ if [ ! -f "$REPO_DIR/.env" ]; then
 [deploy] FATAL: .env not found at the repo root.
 Create it once from .env.example, fill in the real values, then:
   chmod 600 .env
-Then re-run this script.
+and then re-run this script.
 EOF
     exit 1
 fi
@@ -124,7 +124,10 @@ replacements = {
 }
 lines = []
 for line in content.splitlines(keepends=True):
+    stripped = line.lstrip()
     for prefix, value in replacements.items():
+        if stripped.startswith((";", "#")):
+            break
         if line.startswith(prefix):
             newline = ""
             if line.endswith("\r\n"):
