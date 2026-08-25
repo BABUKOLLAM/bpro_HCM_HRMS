@@ -5,7 +5,10 @@
     delaycompress
     missingok
     notifempty
-    create 0640
+    # The stock odoo:18 image runs as uid 100 / gid 101. If you swap in
+    # a custom image or change the container user, update these values to
+    # match so the recreated logfile stays writable to Odoo.
+    create 0640 100 101
     sharedscripts
     # Odoo keeps the logfile open. This sample restarts only the odoo
     # service after rotation so it reopens the fresh file; it is more

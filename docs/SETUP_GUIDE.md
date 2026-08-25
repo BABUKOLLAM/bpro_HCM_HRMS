@@ -305,10 +305,11 @@ offenders at the firewall.
 4. `systemctl restart fail2ban`, then `fail2ban-client status
    odoo-auth` to confirm the jail is active.
 5. Install the sample logrotate policy from `deploy/logrotate.odoo`
-   into `/etc/logrotate.d/` (after fixing the path) so Odoo's bind-mounted
-   log file does not grow forever and eventually fill the disk; the sample
-   policy rotates the file and then restarts the `odoo` service so it
-   reopens the fresh logfile.
+   into `/etc/logrotate.d/` (after fixing the path and confirming the
+   sample UID/GID still match your Odoo container user) so Odoo's
+   bind-mounted log file does not grow forever and eventually fill the
+   disk; the sample policy rotates the file and then restarts the `odoo`
+   service so it reopens the fresh logfile.
 
 Default policy: 5 failed logins in 10 minutes bans the IP for 1 hour —
 adjust `maxretry`/`findtime`/`bantime` in the jail file to the client's
