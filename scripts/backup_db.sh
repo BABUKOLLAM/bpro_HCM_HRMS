@@ -29,8 +29,8 @@ DEST="${BACKUP_DIR}/${DB_NAME}_${TIMESTAMP}"
 TEMP_DEST="${BACKUP_DIR}/.${DB_NAME}_${TIMESTAMP}.incomplete"
 
 case "$RETENTION_DAYS" in
-    ''|*[!0-9]*)
-        echo "BACKUP_RETENTION_DAYS must be a non-negative integer, got '${RETENTION_DAYS}'." >&2
+    ''|0|*[!0-9]*)
+        echo "BACKUP_RETENTION_DAYS must be a positive integer, got '${RETENTION_DAYS}'." >&2
         exit 1
         ;;
 esac

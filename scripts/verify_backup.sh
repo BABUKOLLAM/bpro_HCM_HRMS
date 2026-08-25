@@ -15,6 +15,12 @@ usage() {
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KEEP_RESTORED_DB=0
+cleanup_restored_db() {
+    docker compose exec -T db psql -U odoo -d postgres -v ON_ERROR_STOP=1 \
+        -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${SCRATCH_DB}' AND pid <> pg_backend_pid();" >/dev/null 2>&1 || true
+    docker compose exec -T db dropdb -U odoo --if-exists "$SCRATCH_DB" >/dev/null 2>&1 || true
+    docker compose exec -T odoo rm -rf "/var/lib/odoo/filestore/${SCRATCH_DB}" >/dev/null 2>&1 || true
+}
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -48,6 +54,7 @@ fi
 
 echo "[$(date)] Restoring ${BACKUP_DIR} into scratch database '${SCRATCH_DB}'..."
 "${SCRIPT_DIR}/restore_db.sh" --yes "$BACKUP_DIR" "$SCRATCH_DB"
+trap cleanup_restored_db EXIT
 
 echo "[$(date)] Booting Odoo once against '${SCRATCH_DB}' to verify registry startup..."
 docker compose run --rm --no-deps odoo \
@@ -60,16 +67,15 @@ if [ -z "$MODULE_COUNT" ] || [ "$MODULE_COUNT" = "0" ]; then
     echo "Scratch database '${SCRATCH_DB}' restored, but ir_module_module is empty." >&2
     exit 1
 fi
-
 if [ "$KEEP_RESTORED_DB" -eq 1 ]; then
+if [ "$KEEP_RESTORED_DB" -eq 1 ]; then
+    trap - EXIT
     echo "[$(date)] Backup verification succeeded. Kept scratch database '${SCRATCH_DB}' for inspection."
     exit 0
 fi
 
 echo "[$(date)] Cleaning scratch database '${SCRATCH_DB}' back up..."
-docker compose exec -T db psql -U odoo -d postgres -v ON_ERROR_STOP=1 \
-    -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${SCRATCH_DB}' AND pid <> pg_backend_pid();" >/dev/null
-docker compose exec -T db dropdb -U odoo --if-exists "$SCRATCH_DB"
-docker compose exec -T odoo rm -rf "/var/lib/odoo/filestore/${SCRATCH_DB}"
+cleanup_restored_db
+trap - EXIT
 
 echo "[$(date)] Backup verification succeeded."
