@@ -115,20 +115,27 @@ from pathlib import Path
 import os
 
 path = Path("config/odoo.prod.conf")
-content = path.read_text()
+with path.open("r", newline="") as handle:
+    content = handle.read()
 replacements = {
     "admin_passwd = ": os.environ["ODOO_ADMIN_PASSWD"],
     "db_name = ": os.environ["ODOO_DB_NAME"],
     "dbfilter = ": os.environ["ODOO_DBFILTER"],
 }
 lines = []
-for line in content.splitlines():
+for line in content.splitlines(keepends=True):
     for prefix, value in replacements.items():
         if line.startswith(prefix):
-            line = f"{prefix}{value}"
+            newline = ""
+            if line.endswith("\r\n"):
+                newline = "\r\n"
+            elif line.endswith("\n"):
+                newline = "\n"
+            line = f"{prefix}{value}{newline}"
             break
     lines.append(line)
-path.write_text("\n".join(lines) + "\n")
+with path.open("w", newline="") as handle:
+    handle.write("".join(lines))
 PY
 
 if grep -q "^admin_passwd = CHANGE-ME" config/odoo.prod.conf; then
@@ -140,7 +147,7 @@ if grep -q "^admin_passwd = CHANGE-ME" config/odoo.prod.conf; then
     exit 1
 fi
 
-if grep -q "^db_name = CHANGE-ME" config/odoo.prod.conf || grep -q "^dbfilter = \^CHANGE-ME" config/odoo.prod.conf; then
+if grep -q "^db_name = CHANGE-ME-prod-db$" config/odoo.prod.conf || grep -q "^dbfilter = \^CHANGE-ME-prod-db\$$" config/odoo.prod.conf; then
     echo "[deploy] FATAL: db_name/dbfilter in config/odoo.prod.conf still contain placeholders after substitution. Aborting." >&2
     exit 1
 fi
