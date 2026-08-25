@@ -64,6 +64,7 @@ if [ ! -f "$REPO_DIR/.env" ]; then
     cat >&2 <<'EOF'
 [deploy] FATAL: .env not found at the repo root.
 Create it once from .env.example, fill in the real values:
+  cp .env.example .env
   chmod 600 .env
 Then re-run this script.
 EOF
