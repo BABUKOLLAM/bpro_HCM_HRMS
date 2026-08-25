@@ -96,6 +96,37 @@ Layers in a Caddy reverse proxy (automatic HTTPS) and a
 production-sized Odoo config. Full walkthrough in
 [`docs/SETUP_GUIDE.md`](docs/SETUP_GUIDE.md) §4.5.
 
+### Two-programme VPS layout (Hostinger VPS2)
+
+This server hosts **two completely separate programmes** behind one shared
+Caddy instance:
+
+| Programme | Domain | Container | Ports |
+|---|---|---|---|
+| bpro HCM / HRMS | `www.bprohrms.com` | `odoo` | 8069 / 8072 |
+| FieldOpsPro | `www.fieldopspro.in` | `fieldops-odoo` | 8079 / 8082 |
+
+Both programmes share a Docker network called `caddy_net` so the single
+Caddy container can reach both by container name. The Caddyfile
+(`deploy/Caddyfile`) contains a separate block for each domain, and each
+block routes to its own container — they never share traffic.
+
+To bring up FieldOpsPro on the same VPS:
+
+```bash
+# One-time: create the shared Caddy network (if not already present)
+docker network create caddy_net
+
+# Start HRMS (joins caddy_net as "odoo")
+cd /root/bpro-hrms-hcm
+docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+  -f docker-compose.shared-caddy.yml up -d db odoo
+
+# Start FieldOpsPro (joins caddy_net as "fieldops-odoo")
+cd /root/fieldopspro          # FieldOpsPro repo root
+docker compose -f deploy/fieldopspro/docker-compose.yml up -d
+```
+
 ## Backups
 
 ```bash

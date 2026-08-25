@@ -1,28 +1,31 @@
-# Optional overlay for co-hosting this stack on a server that already runs
-# a separate Caddy instance for another site (e.g. bpro's own VPS, which
-# also hosts a client's ME Polymers ERP under its own docker-compose
-# project named "deploy"). Ports 80/443 can only be bound by ONE Caddy
-# container per host, so this stack's own "caddy" service must NOT be
-# started here - instead, this file joins the "odoo" service to the
-# other project's existing Docker network under a distinct alias, so
-# that project's Caddy can reverse_proxy to it directly by name.
+# Overlay for the shared-Caddy VPS setup where two programmes run side by side:
 #
-# Usage (deliberately excludes the caddy service):
+#   Programme 1: bpro HCM/HRMS  (THIS stack)   → www.bprohrms.com
+#   Programme 2: FieldOpsPro    (separate stack) → www.fieldopspro.in
+#
+# Only ONE Caddy container can bind ports 80/443 on a host, so this stack's
+# own "caddy" service must NOT be started here.  Instead, this overlay joins
+# the HRMS "odoo" container to the shared Caddy network under the alias
+# "odoo" so the Caddyfile can reach it by that name.
+#
+# The FieldOpsPro stack does the same thing with its own overlay, joining
+# the same network under the alias "fieldops-odoo".
+#
+# Usage (start db + odoo only, caddy comes from the shared network):
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml \
 #     -f docker-compose.shared-caddy.yml up -d db odoo
 #
-# The external network name below ("deploy_default") and the alias
-# ("hrms-odoo") are specific to bpro's own production VPS - adjust both
-# to match whatever network/alias the other Caddy instance actually
-# expects on a different host.
+# Network name "caddy_net" must match whatever the Caddy container's
+# docker-compose project creates. Adjust if your Caddy project uses a
+# different network name.
 services:
   odoo:
     networks:
       default: {}
-      deploy_default:
+      caddy_net:
         aliases:
-          - hrms-odoo
+          - odoo
 
 networks:
-  deploy_default:
+  caddy_net:
     external: true

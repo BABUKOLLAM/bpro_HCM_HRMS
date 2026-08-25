@@ -1,14 +1,23 @@
-# Reverse proxy + automatic HTTPS for the bpro HCM/HRMS Odoo instance.
-# Caddy obtains and renews a Let's Encrypt certificate automatically -
-# no certbot, no manual renewal cron. For a client deployment, replace
-# the domain below with the client's own domain before deploying - this
-# file's own domain (www.bprohrms.com) is bpro's official product site,
-# not a per-client placeholder.
+# Reverse proxy + automatic HTTPS for both programmes hosted on this VPS.
+# Caddy obtains and renews Let's Encrypt certificates automatically -
+# no certbot, no manual renewal cron.
 #
-# Requires the domain's DNS A/AAAA record to already point at this
-# server, and ports 80+443 reachable from the internet (80 is needed
-# for the ACME HTTP challenge even though everything redirects to 443
-# afterwards).
+# TWO SEPARATE PROGRAMMES on this server:
+#   1. bpro HCM/HRMS  → www.bprohrms.com   (container: odoo,         ports 8069/8072)
+#   2. FieldOpsPro    → www.fieldopspro.in  (container: fieldops-odoo, ports 8079/8082)
+#
+# Requires each domain's DNS A/AAAA record to point at this server's IP,
+# and ports 80+443 reachable from the internet (port 80 is needed for the
+# ACME HTTP-01 challenge even though all traffic redirects to 443 afterwards).
+
+# ---------------------------------------------------------------------------
+# Programme 1: bpro HCM / HRMS
+# ---------------------------------------------------------------------------
+
+# Naked-domain redirect → always use www
+bprohrms.com {
+	redir https://www.bprohrms.com{uri} permanent
+}
 
 www.bprohrms.com {
 	# Long-polling (Odoo's live chatter/notification bus) needs a
@@ -35,5 +44,38 @@ www.bprohrms.com {
 
 	log {
 		output file /var/log/caddy/hcm-access.log
+	}
+}
+
+# ---------------------------------------------------------------------------
+# Programme 2: FieldOpsPro
+# Container name: fieldops-odoo   (separate Docker Compose stack)
+# Internal ports: 8079 (main app) · 8082 (longpolling/websocket)
+# ---------------------------------------------------------------------------
+
+# Naked-domain redirect → always use www
+fieldopspro.in {
+	redir https://www.fieldopspro.in{uri} permanent
+}
+
+www.fieldopspro.in {
+	reverse_proxy fieldops-odoo:8079 {
+		header_up X-Forwarded-Proto {scheme}
+		transport http {
+			read_timeout 610s
+		}
+	}
+
+	handle /websocket/* {
+		reverse_proxy fieldops-odoo:8082
+	}
+	handle /longpolling/* {
+		reverse_proxy fieldops-odoo:8082
+	}
+
+	encode gzip
+
+	log {
+		output file /var/log/caddy/fieldopspro-access.log
 	}
 }
