@@ -4,6 +4,21 @@
 # Adds a Caddy reverse proxy (automatic HTTPS) and stops publishing
 # Odoo's ports directly to the host - only Caddy is internet-facing.
 #
+# Deliberately self-contained, not shared with any other project on
+# this host - this stack owns ports 80/443 outright via its own caddy
+# service above, rather than joining another project's Caddy over a
+# shared Docker network (an earlier, since-abandoned approach; see
+# docker-compose.shared-caddy.yml, kept only for reference). That
+# approach failed in a real incident: the other project's Caddy
+# container and its config directory were renamed/removed during
+# unrelated work on this shared VPS, which silently cut this site off
+# from the internet with zero error on this side - deploy.sh kept
+# reporting SUCCESS because it only checks that Odoo itself answers
+# internally, never that anything is actually routing the public
+# domain to it. Owning 80/443 directly removes that dependency
+# entirely: this project's uptime no longer depends on any other
+# repository, container, or team's changes on this VPS.
+#
 # restart: unless-stopped on db/odoo (added after a live incident: the
 # db container came back up on its own after some disruption on the
 # host, odoo didn't, and nothing noticed until a user reported the

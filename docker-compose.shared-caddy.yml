@@ -1,20 +1,21 @@
-# Optional overlay for co-hosting this stack on a server that already runs
-# a separate Caddy instance for another site (e.g. bpro's own VPS, which
-# also hosts a client's ME Polymers ERP under its own docker-compose
-# project named "deploy"). Ports 80/443 can only be bound by ONE Caddy
-# container per host, so this stack's own "caddy" service must NOT be
-# started here - instead, this file joins the "odoo" service to the
-# other project's existing Docker network under a distinct alias, so
-# that project's Caddy can reverse_proxy to it directly by name.
+# DEPRECATED - kept for reference only, no longer used by deploy.sh.
 #
-# Usage (deliberately excludes the caddy service):
-#   docker compose -f docker-compose.yml -f docker-compose.prod.yml \
-#     -f docker-compose.shared-caddy.yml up -d db odoo
+# This was an optional overlay for co-hosting this stack on a server
+# that already runs a separate Caddy instance for another site (e.g.
+# bpro's own VPS, which also hosts a client's ME Polymers ERP under
+# its own docker-compose project named "deploy"): join the "odoo"
+# service to that other project's Docker network under an alias, and
+# let its Caddy reverse_proxy to this one instead of running our own.
 #
-# The external network name below ("deploy_default") and the alias
-# ("hrms-odoo") are specific to bpro's own production VPS - adjust both
-# to match whatever network/alias the other Caddy instance actually
-# expects on a different host.
+# Abandoned after a real incident: the other project's Caddy container
+# and its config directory were renamed/removed during unrelated work
+# on the shared VPS, silently cutting this site off from the internet
+# with no error on this side - deploy.sh only ever checks that Odoo
+# answers internally, never that anything is actually routing the
+# public domain to it. docker-compose.prod.yml now runs this stack's
+# own dedicated Caddy on 80/443 instead, with zero dependency on any
+# other project, container, or team's changes on the host. Do not
+# reintroduce this overlay into deploy.sh.
 services:
   odoo:
     networks:

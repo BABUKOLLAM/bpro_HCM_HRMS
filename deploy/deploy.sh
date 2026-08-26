@@ -54,7 +54,7 @@ fi
 
 # --- Everything below only ever runs from the freshly re-exec'd copy ------
 
-COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.shared-caddy.yml"
+COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
 
 # Every module this suite ships, minus bpro_demo_data (evaluation-only,
 # must never run in production - see its own manifest for why).
@@ -136,8 +136,14 @@ log "Starting/restarting the live odoo process..."
 # erroring "container name already in use" - confirmed live: it blocked
 # a deploy outright and needed a manual --remove-orphans run to recover.
 # This flag makes that class of failure impossible instead of hoping it
-# doesn't recur.
-$COMPOSE up -d --force-recreate --remove-orphans odoo
+# doesn't recur. caddy is included here too - this stack now runs its
+# own dedicated Caddy on 80/443 instead of joining another project's
+# shared one (see docker-compose.prod.yml's own comment for why: a
+# live incident found the shared Caddy's source directory renamed/gone
+# entirely during unrelated work on this VPS, silently cutting this
+# site off from the internet with no error on our side at all - full
+# isolation removes that entire class of failure).
+$COMPOSE up -d --force-recreate --remove-orphans odoo caddy
 
 # --- 5. Verify it's actually serving before declaring success ---------------
 # Poll rather than a single fixed sleep - a fresh restart right after
