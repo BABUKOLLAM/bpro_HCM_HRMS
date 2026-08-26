@@ -136,14 +136,13 @@ log "Starting/restarting the live odoo process..."
 # erroring "container name already in use" - confirmed live: it blocked
 # a deploy outright and needed a manual --remove-orphans run to recover.
 # This flag makes that class of failure impossible instead of hoping it
-# doesn't recur. caddy is included here too - this stack now runs its
-# own dedicated Caddy on 80/443 instead of joining another project's
-# shared one (see docker-compose.prod.yml's own comment for why: a
-# live incident found the shared Caddy's source directory renamed/gone
-# entirely during unrelated work on this VPS, silently cutting this
-# site off from the internet with no error on our side at all - full
-# isolation removes that entire class of failure).
-$COMPOSE up -d --force-recreate --remove-orphans odoo caddy
+# doesn't recur. Deliberately not touching "caddy" here - this stack
+# never runs its own public-facing proxy on this VPS (see
+# docker-compose.prod.yml's own comment: a shared edge Caddy instance
+# fronts every product here, reaching each by its own default network
+# + plain service name, not by running N separate internet-facing
+# proxies fighting over the same two ports).
+$COMPOSE up -d --force-recreate --remove-orphans odoo
 
 # --- 5. Verify it's actually serving before declaring success ---------------
 # Poll rather than a single fixed sleep - a fresh restart right after

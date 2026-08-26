@@ -1,23 +1,30 @@
 # Production overlay - use alongside the base docker-compose.yml:
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 #
-# Adds a Caddy reverse proxy (automatic HTTPS) and stops publishing
-# Odoo's ports directly to the host - only Caddy is internet-facing.
+# `name:` below pins this project's Compose name (and therefore its
+# default network, "bpro_hcm_hrms_default") regardless of whatever
+# directory it's actually checked out into - this VPS hosts several
+# products behind one shared edge Caddy instance (/root/edge, its own
+# separate project, not part of this repo), which reaches each one by
+# joining that product's own default network directly and calling its
+# "odoo" service by that plain name (Docker's per-project DNS alias,
+# free with any Compose service - no custom alias config needed on
+# this side). That only works if this project's network name is
+# exactly what the edge Caddy already expects; pinning it here means
+# it stays correct even if this checkout ever gets cloned into a
+# differently-named folder again.
 #
-# Deliberately self-contained, not shared with any other project on
-# this host - this stack owns ports 80/443 outright via its own caddy
-# service above, rather than joining another project's Caddy over a
-# shared Docker network (an earlier, since-abandoned approach; see
-# docker-compose.shared-caddy.yml, kept only for reference). That
-# approach failed in a real incident: the other project's Caddy
-# container and its config directory were renamed/removed during
-# unrelated work on this shared VPS, which silently cut this site off
-# from the internet with zero error on this side - deploy.sh kept
-# reporting SUCCESS because it only checks that Odoo itself answers
-# internally, never that anything is actually routing the public
-# domain to it. Owning 80/443 directly removes that dependency
-# entirely: this project's uptime no longer depends on any other
-# repository, container, or team's changes on this VPS.
+# This stack deliberately does NOT run its own public-facing Caddy
+# (the "caddy" service below has profiles: [standalone] specifically
+# so a normal `docker compose up` never starts it) - every other
+# product on this VPS follows the same pattern of leaving 80/443
+# entirely to the shared edge instance. Running our own would fight
+# the edge Caddy for those ports outright (confirmed live: a real
+# attempt at running this stack's own Caddy failed immediately with
+# "port is already allocated"). The "caddy" service stays defined,
+# under that profile, only for a genuinely standalone deployment
+# elsewhere with no shared edge proxy - start it explicitly with
+# `--profile standalone` in that case, never on this VPS.
 #
 # restart: unless-stopped on db/odoo (added after a live incident: the
 # db container came back up on its own after some disruption on the
@@ -27,6 +34,8 @@
 # an interrupted deploy, or the host rebooting. "unless-stopped" means
 # Docker itself brings both back automatically in all of those cases,
 # while still respecting a deliberate `docker compose stop`.
+name: bpro_hcm_hrms
+
 services:
   db:
     restart: unless-stopped
@@ -54,6 +63,7 @@ services:
 
   caddy:
     image: caddy:2-alpine
+    profiles: [standalone]
     restart: unless-stopped
     depends_on:
       - odoo
