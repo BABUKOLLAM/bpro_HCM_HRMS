@@ -36,7 +36,7 @@
                             <div class="card-body">
                                 <div class="text-uppercase small opacity-75">Payroll</div>
                                 <h2 class="mb-0"><field name="payroll_mtd_gross" widget="monetary" nolabel="1"/></h2>
-                                <div class="small">Gross Payout</div>
+                                <div class="small">Gross Payout (payslips for periods starting in the range)</div>
                             </div>
                         </div>
                     </div>

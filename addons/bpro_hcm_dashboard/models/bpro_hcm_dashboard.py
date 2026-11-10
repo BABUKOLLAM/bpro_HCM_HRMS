@@ -72,7 +72,8 @@ class BproHcmDashboard(models.TransientModel):
 
     # --- flows: From..To -------------------------------------------------
     payroll_mtd_gross = fields.Monetary(
-        string="Gross Payout (period)", compute="_compute_kpis",
+        string="Gross Payout (payslips for periods starting in the range)",
+        compute="_compute_kpis",
         help="GROSS of confirmed payslips whose pay period starts From..To.",
     )
     joiners_count = fields.Integer(string="Joiners (period)", compute="_compute_kpis")
@@ -126,11 +127,21 @@ class BproHcmDashboard(models.TransientModel):
     def _onchange_dates_to_custom(self):
         # Idempotent: the preset onchange above writes the dates, which
         # re-enters here - only a real hand edit flips the label.
+        warning = None
         for rec in self:
-            if not (rec.date_from and rec.as_of_date) or rec.period_preset == "custom":
+            if not (rec.date_from and rec.as_of_date):
+                continue
+            if rec.date_from > rec.as_of_date:
+                warning = {
+                    "title": "Check the period",
+                    "message": "'From' must be on or before 'To'.",
+                }
+            if rec.period_preset == "custom":
                 continue
             if (rec.date_from, rec.as_of_date) != rec._preset_dates(rec.period_preset):
                 rec.period_preset = "custom"
+        if warning:
+            return {"warning": warning}
 
     @api.constrains("date_from", "as_of_date")
     def _check_range(self):
@@ -165,6 +176,17 @@ class BproHcmDashboard(models.TransientModel):
     # KPI maths
     # ------------------------------------------------------------------
     @api.model
+    def _can(self, group_xmlid, *models_):
+        """True when this user may see the whole company's records of a
+        KPI: in the officer/user group AND with read access on every
+        model it touches. Group, not just model access, because e.g.
+        ESS grants every employee read on their OWN payslips/attendance
+        - a figure built on that would silently be own-records-only."""
+        if not self.env.su and group_xmlid and not self.env.user.has_group(group_xmlid):
+            return False
+        return all(self.env[m].has_access("read") for m in models_)
+
+    @api.model
     def _first_contract_dates(self, company):
         """{employee_id: earliest non-cancelled contract start}."""
         if not self.env["hr.contract"].has_access("read"):
@@ -183,19 +205,18 @@ class BproHcmDashboard(models.TransientModel):
         if their departure date is after ``as_of_date``."""
         if first_contract is None:
             first_contract = self._first_contract_dates(company)
-        employees = self.env["hr.employee"].with_context(active_test=False).search([
-            ("company_id", "=", company.id),
-            "|", ("active", "=", True), ("departure_date", "!=", False),
-        ])
-        count = 0
-        for employee in employees:
-            if employee.departure_date and employee.departure_date <= as_of_date:
-                continue
-            joined = first_contract.get(employee.id)
-            if joined and joined > as_of_date:
-                continue
-            count += 1
-        return count
+        rows = self.env["hr.employee"].with_context(active_test=False).search_read(
+            [
+                ("company_id", "=", company.id),
+                "|", ("active", "=", True), ("departure_date", "!=", False),
+                "|", ("departure_date", "=", False), ("departure_date", ">", as_of_date),
+            ],
+            ["id"],
+        )
+        return sum(
+            1 for row in rows
+            if not (first_contract.get(row["id"]) and first_contract[row["id"]] > as_of_date)
+        )
 
     @api.model
     def _get_kpi_data(self, company, as_of_date, date_from=None):
@@ -214,23 +235,39 @@ class BproHcmDashboard(models.TransientModel):
         # A model the user can't read at all gives 0 plus a note, rather
         # than an AccessError that would blank the whole dashboard.
         hidden = []
-        can_read_contracts = self.env["hr.contract"].has_access("read")
-        if not can_read_contracts:
-            hidden += ["Joiners", "EL Liability"]
+        can_payroll = self._can("payroll.group_payroll_user", "hr.payslip", "hr.payslip.line")
+        can_contracts = self._can(None, "hr.contract")
+        can_leave = self._can(
+            "hr_holidays.group_hr_holidays_user", "hr.leave", "hr.leave.allocation"
+        )
+        # Attendance *Administrator*, not Officer: in Odoo 18 an Officer's
+        # record rule only shows employees they are attendance manager of,
+        # which would make the company total silently team-only.
+        can_attendance = self._can("hr_attendance.group_hr_attendance_manager", "hr.attendance")
+        if not can_payroll:
+            hidden.append("Payroll")
+        if not can_contracts:
+            hidden += ["Joiners", "Headcount (joining dates unavailable - counted from the current roster)"]
+        if not can_leave:
+            hidden.append("Leave Days Taken")
+        if not can_attendance:
+            hidden += ["Hours Worked", "Approved Overtime"]
+        if not (can_contracts and can_leave):
+            hidden.append("EL Liability")
 
         # ---------------- flows ----------------
-        payslips_done = self.env["hr.payslip"].search([
-            ("company_id", "=", company.id),
-            ("state", "=", "done"),
-            ("date_from", ">=", date_from),
-            ("date_from", "<=", date_to),
-        ])
-        gross_lines = self.env["hr.payslip.line"].search([
-            ("slip_id", "in", payslips_done.ids), ("code", "=", "GROSS"),
-        ])
-        data["payroll_mtd_gross"] = sum(gross_lines.mapped("total"))
+        data["payroll_mtd_gross"] = 0.0
+        if can_payroll:
+            gross = self.env["hr.payslip.line"]._read_group([
+                ("slip_id.company_id", "=", company.id),
+                ("slip_id.state", "=", "done"),
+                ("slip_id.date_from", ">=", date_from),
+                ("slip_id.date_from", "<=", date_to),
+                ("code", "=", "GROSS"),
+            ], [], ["total:sum"])
+            data["payroll_mtd_gross"] = gross[0][0] or 0.0
 
-        first_contract = self._first_contract_dates(company)
+        first_contract = self._first_contract_dates(company) if can_contracts else {}
         data["joiners_count"] = sum(
             1 for start in first_contract.values() if date_from <= start <= date_to
         )
@@ -244,19 +281,20 @@ class BproHcmDashboard(models.TransientModel):
 
         # A leave crossing the range edge counts only its share of days
         # inside the range (pro rata by calendar days).
-        leaves = self.env["hr.leave"].search([
-            ("employee_id.company_id", "=", company.id),
-            ("state", "=", "validate"),
-            ("request_date_from", "<=", date_to),
-            ("request_date_to", ">=", date_from),
-        ])
         leave_days = 0.0
-        for leave in leaves:
-            start = leave.request_date_from
-            end = leave.request_date_to or start
-            span = (end - start).days + 1
-            inside = dr.overlap_days(start, end, date_from, date_to)
-            leave_days += leave.number_of_days * inside / span if span > 0 else 0.0
+        if can_leave:
+            leaves = self.env["hr.leave"].search_read([
+                ("employee_id.company_id", "=", company.id),
+                ("state", "=", "validate"),
+                ("request_date_from", "<=", date_to),
+                ("request_date_to", ">=", date_from),
+            ], ["request_date_from", "request_date_to", "number_of_days"])
+            for leave in leaves:
+                start = leave["request_date_from"]
+                end = leave["request_date_to"] or start
+                span = (end - start).days + 1
+                inside = dr.overlap_days(start, end, date_from, date_to)
+                leave_days += leave["number_of_days"] * inside / span if span > 0 else 0.0
         data["leave_days_taken"] = leave_days
 
         attendance_domain = [
@@ -264,16 +302,20 @@ class BproHcmDashboard(models.TransientModel):
             ("check_in", ">=", utc_start),
             ("check_in", "<", utc_stop),
         ]
-        if self.env["hr.attendance"].has_access("read"):
-            attendances = self.env["hr.attendance"].search(attendance_domain)
-        else:
-            attendances = self.env["hr.attendance"]
-            hidden += ["Hours Worked", "Approved Overtime"]
-        data["attendance_worked_hours"] = sum(attendances.mapped("worked_hours"))
-        data["overtime_approved_hours"] = sum(
-            attendances.filtered(lambda a: a.overtime_status == "approved")
-            .mapped("validated_overtime_hours")
-        )
+        data["attendance_worked_hours"] = 0.0
+        data["overtime_approved_hours"] = 0.0
+        if can_attendance:
+            Attendance = self.env["hr.attendance"]
+            data["attendance_worked_hours"] = (
+                Attendance._read_group(attendance_domain, [], ["worked_hours:sum"])[0][0] or 0.0
+            )
+            data["overtime_approved_hours"] = Attendance._read_group(
+                attendance_domain + [
+                    ("overtime_status", "=", "approved"),
+                    ("validated_overtime_hours", ">", 0),  # undertime is not overtime
+                ],
+                [], ["validated_overtime_hours:sum"],
+            )[0][0] or 0.0
 
         data["attendance_exceptions_raised"] = self.env[
             "bpro.attendance.exception"
@@ -291,7 +333,7 @@ class BproHcmDashboard(models.TransientModel):
             ("company_id", "=", company.id),
             ("state", "in", ("draft", "verify")),
             ("date_from", "<=", date_to),
-        ])
+        ]) if can_payroll else 0
 
         approved_requests = self.env["bpro.vacancy.request"].search([
             ("company_id", "=", company.id), ("state", "=", "approved"),
@@ -341,42 +383,37 @@ class BproHcmDashboard(models.TransientModel):
         # F&F does on the settlement day).
         el_liability = 0.0
         el_type = self.env.ref("bpro_leave.leave_type_earned", raise_if_not_found=False)
-        if el_type and can_read_contracts:
-            allocations = self.env["hr.leave.allocation"].search([
+        if el_type and can_contracts and can_leave:
+            balance = {}
+            for employee, days in self.env["hr.leave.allocation"]._read_group([
                 ("employee_id.company_id", "=", company.id),
                 ("holiday_status_id", "=", el_type.id),
                 ("state", "=", "validate"),
                 ("date_from", "<=", date_to),
-            ])
-            taken = self.env["hr.leave"].search([
+            ], ["employee_id"], ["number_of_days:sum"]):
+                balance[employee.id] = balance.get(employee.id, 0.0) + (days or 0.0)
+            for employee, days in self.env["hr.leave"]._read_group([
                 ("employee_id.company_id", "=", company.id),
                 ("holiday_status_id", "=", el_type.id),
                 ("state", "=", "validate"),
                 ("request_date_from", "<=", date_to),
-            ])
-            balance_by_employee = {}
-            for allocation in allocations:
-                balance_by_employee[allocation.employee_id] = (
-                    balance_by_employee.get(allocation.employee_id, 0.0)
-                    + allocation.number_of_days
-                )
-            for leave in taken:
-                balance_by_employee[leave.employee_id] = (
-                    balance_by_employee.get(leave.employee_id, 0.0)
-                    - leave.number_of_days
-                )
-            for employee, balance in balance_by_employee.items():
-                if balance <= 0:
-                    continue
-                contract = self.env["hr.contract"].search(
-                    [("employee_id", "=", employee.id), ("state", "=", "open")],
-                    limit=1,
-                )
+            ], ["employee_id"], ["number_of_days:sum"]):
+                balance[employee.id] = balance.get(employee.id, 0.0) - (days or 0.0)
+            positive = [emp_id for emp_id, days in balance.items() if days > 0]
+            # One query for all open contracts; first in hr.contract's
+            # own order per employee, as the old per-employee search(limit=1).
+            contract_by_employee = {}
+            for contract in self.env["hr.contract"].search([
+                ("employee_id", "in", positive), ("state", "=", "open"),
+            ]):
+                contract_by_employee.setdefault(contract.employee_id.id, contract)
+            for emp_id in positive:
+                contract = contract_by_employee.get(emp_id)
                 if contract:
                     monthly_basic = (
                         contract.ctc_annual / 12.0 * (contract.basic_percent / 100.0)
                     )
-                    el_liability += balance * monthly_basic / 26.0
+                    el_liability += balance[emp_id] * monthly_basic / 26.0
         data["el_liability"] = el_liability
 
         data["access_note"] = (

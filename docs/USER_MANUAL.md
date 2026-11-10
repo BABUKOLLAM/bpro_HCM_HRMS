@@ -349,7 +349,7 @@ your company has set a different fiscal year end. **To** is the old
 
 | Card | What it means |
 |---|---|
-| Gross Payout | Gross of confirmed payslips whose pay period starts in the range |
+| Gross Payout | Gross of confirmed payslips for pay periods starting in the range |
 | Joiners | Employees whose first contract starts in the range |
 | Leavers | Exit requests closed with a last working day in the range |
 | Leave Days Taken | Approved leave days falling in the range (a leave that crosses the edge counts only its share of days) |
@@ -370,5 +370,8 @@ your company has set a different fiscal year end. **To** is the old
 | Attrition (12 months to To) | Exits closed in the 12 months ending To, over headcount as of To |
 | EL Encashment Liability | Earned Leave balance as of To × the same formula the F&F settlement uses |
 
-If your access doesn't cover a figure (for example contracts), it shows
-0 and a yellow note at the top says which figures are affected.
+Company-wide figures need company-wide rights: Payroll cards need the
+Payroll user role, leave cards the Time Off officer role, attendance and
+overtime the Attendances administrator role, joiners/EL liability read
+access to contracts. Without them a card shows 0 (never just your own
+records) and a yellow note at the top names the figures affected.

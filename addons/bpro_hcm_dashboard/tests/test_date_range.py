@@ -248,3 +248,98 @@ class TestDashboardRange(TransactionCase):
             })
         self.assertEqual(self._kpi(date(2026, 10, 1), date(2026, 10, 31))["payroll_pending_confirmation"], 1)
         self.assertEqual(self._kpi(date(2026, 11, 10), date(2026, 11, 10))["payroll_pending_confirmation"], 2)
+
+
+@tagged("post_install", "-at_install")
+class TestDashboardAccess(TransactionCase):
+    """No sudo: a Client HR user without the officer groups gets 0 + a
+    note on those cards (never an AccessError, never own-records-only);
+    with the groups they get the same figures as the superuser."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.company = cls.env["res.company"].create({"name": "Access Test Co"})
+        base_groups = [cls.env.ref("base.group_user").id, cls.env.ref("bpro_base.group_client_hr").id]
+        officer_groups = [
+            cls.env.ref(x).id for x in (
+                "payroll.group_payroll_user",
+                "hr_holidays.group_hr_holidays_user",
+                "hr_attendance.group_hr_attendance_manager",
+                "hr_contract.group_hr_contract_manager",
+            )
+        ]
+
+        def user(login, groups):
+            return cls.env["res.users"].create({
+                "name": login, "login": login + "@test.example",
+                "company_id": cls.company.id, "company_ids": [(6, 0, [cls.company.id])],
+                "groups_id": [(6, 0, groups)],
+            })
+
+        cls.restricted = user("dash-restricted", base_groups)
+        cls.officer = user("dash-officer", base_groups + officer_groups)
+
+        employee = cls.env["hr.employee"].create({"name": "Access Employee", "company_id": cls.company.id})
+        cls.env["hr.contract"].create({
+            "name": "Access contract", "employee_id": employee.id, "company_id": cls.company.id,
+            "wage": 20000, "ctc_annual": 240000.0, "basic_percent": 50.0, "hra_percent": 40.0,
+            "date_start": date(2026, 11, 2), "state": "open",
+        })
+        cls.env["hr.attendance"].create({
+            "employee_id": employee.id,
+            "check_in": datetime(2026, 11, 3, 4, 0), "check_out": datetime(2026, 11, 3, 8, 0),
+        })
+        # bpro_leave's EL type is created for the install company only;
+        # this test company's users need to see it (rolled back after).
+        cls.env.ref("bpro_leave.leave_type_earned").company_id = False
+        cls.env["hr.leave.allocation"].create({
+            "name": "Access EL", "employee_id": employee.id,
+            "holiday_status_id": cls.env.ref("bpro_leave.leave_type_earned").id,
+            "number_of_days": 13, "date_from": date(2026, 11, 1), "state": "confirm",
+        }).action_approve()
+        struct = cls.env.ref("bpro_payroll.structure_india_ctc")
+        cls.env["hr.payslip"].create({
+            "employee_id": employee.id, "struct_id": struct.id, "company_id": cls.company.id,
+            "contract_id": employee.contract_id.id or cls.env["hr.contract"].search(
+                [("employee_id", "=", employee.id)], limit=1).id,
+            "date_from": date(2026, 11, 1), "date_to": date(2026, 11, 30), "name": "Access slip",
+        })
+
+    def _kpi(self, user=None):
+        Dash = self.env["bpro.hcm.dashboard"].with_context(tz="Asia/Kolkata")
+        if user:
+            Dash = Dash.with_user(user).with_company(self.company)
+        return Dash._get_kpi_data(self.company, date(2026, 11, 10), date(2026, 11, 1))
+
+    def test_restricted_user_gets_zero_and_note(self):
+        self.assertFalse(self.restricted.has_group("payroll.group_payroll_user"))
+        self.assertFalse(self.restricted.has_group("hr_attendance.group_hr_attendance_manager"))
+        data = self._kpi(self.restricted)  # must not raise
+        for name in ("payroll_pending_confirmation", "payroll_mtd_gross", "joiners_count",
+                     "leave_days_taken", "attendance_worked_hours", "overtime_approved_hours",
+                     "el_liability"):
+            self.assertEqual(data[name], 0, name)
+        for label in ("Payroll", "Joiners", "Headcount", "Leave Days Taken",
+                      "Hours Worked", "Approved Overtime", "EL Liability"):
+            self.assertIn(label, data["access_note"])
+        self.assertEqual(data["headcount"], 1)  # still counted, flagged in the note
+
+    def test_officer_matches_superuser(self):
+        su = self._kpi()
+        self.assertEqual(su["joiners_count"], 1)
+        self.assertEqual(su["payroll_pending_confirmation"], 1)
+        self.assertAlmostEqual(su["attendance_worked_hours"], 4.0, places=2)
+        self.assertGreaterEqual(su["overtime_approved_hours"], 0.0)  # undertime excluded
+        self.assertAlmostEqual(su["el_liability"], 5000.0, places=2)
+        officer = self._kpi(self.officer)
+        self.assertFalse(officer["access_note"])
+        self.assertEqual(officer, su)
+
+    def test_from_after_to_onchange_warns(self):
+        dash = self.env["bpro.hcm.dashboard"].new({
+            "period_preset": "custom",
+            "date_from": date(2026, 11, 10), "as_of_date": date(2026, 11, 1),
+        })
+        result = dash._onchange_dates_to_custom()
+        self.assertIn("warning", result)
