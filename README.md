@@ -108,7 +108,7 @@ Nothing runs automatically — schedule `backup_db.sh` via cron. See
 
 ## Test suites
 
-Every module carries its own `tests/` (Odoo `TransactionCase`) — 173
+Every module carries its own `tests/` (Odoo `TransactionCase`) — 188
 tests in total — except `bpro_hrms_portal` and `bpro_theme_switcher`,
 which are primarily JS/UI (Owl components, systray behavior) that a
 server-side TransactionCase can't exercise anyway; both were verified

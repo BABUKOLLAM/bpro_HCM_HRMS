@@ -19,8 +19,17 @@ pure-HCM deployment with no Sales/Manufacturing/Finance modules present.
 * Leave: Earned Leave encashment liability, computed with the exact
   same s79(11) formula bpro_exit's own F&F settlement uses, so the two
   figures can never disagree.
+
+Period: a From-To range (both ends inclusive, user timezone, default
+Asia/Kolkata) with presets - Today, This week, This month to date, Last
+month, Last 30 days, This quarter, This FY to date (Indian Apr-Mar
+unless the company sets its own fiscal year end). Flow figures
+(payroll cost, joiners, leavers, leave taken, hours worked, absences
+flagged, approved overtime) add up From..To; stock figures (headcount,
+pending payslips, vacancies, backlogs, attrition, EL liability) are as
+of To. "As of" is kept as the To date for compatibility.
 """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.1.0",
     "category": "Human Resources",
     "author": "Dr. Babu & bpro Technologies",
     "website": "https://www.bpropms.com",

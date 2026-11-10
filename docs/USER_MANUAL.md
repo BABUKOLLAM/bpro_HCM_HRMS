@@ -334,18 +334,41 @@ only)
 
 **Menu: HCM Dashboard**
 
-A one-screen summary for HR/management:
+A one-screen summary for HR/management.
+
+**Choosing the period.** At the top pick a **Period** preset — Today,
+This week, This month to date (the default), Last month, Last 30 days,
+This quarter, This FY to date — or type your own **From** and **To**
+dates (the preset then shows *Custom*). Both dates are included, and
+"today" is your own timezone's date (India time unless your user
+preferences say otherwise). The financial year is April–March unless
+your company has set a different fiscal year end. **To** is the old
+**As of** date: every snapshot figure below is as at the end of that day.
+
+**For the period (From → To)** — what happened in the range:
 
 | Card | What it means |
 |---|---|
-| Gross Payout (MTD) | Sum of confirmed payslips' Gross this month |
-| Payslips Pending Confirmation | Draft/awaiting-approval payslips — a live "is payroll closed yet" signal |
+| Gross Payout | Gross of confirmed payslips whose pay period starts in the range |
+| Joiners | Employees whose first contract starts in the range |
+| Leavers | Exit requests closed with a last working day in the range |
+| Leave Days Taken | Approved leave days falling in the range (a leave that crosses the edge counts only its share of days) |
+| Hours Worked | Attendance hours checked in during the range |
+| Absences Flagged | Unexplained-absence exceptions raised for days in the range |
+| Approved Overtime Hours | Approved overtime on attendances in the range |
+
+**As of To** — a snapshot at the end of the To date:
+
+| Card | What it means |
+|---|---|
+| Headcount | Employees on the books: joined by To and not departed by then |
+| Payslips Pending Confirmation | Draft/awaiting-approval payslips for periods starting on or before To |
 | Open Vacancies | Approved vacancy requests still short of their target headcount |
 | Overdue Joining Reports | New hires past their joining-report SLA who haven't submitted |
 | Pending Absence Reviews | Attendance exceptions HR hasn't excused or confirmed yet |
 | Open Exit Requests | Resignations in progress (submitted through settled, not yet closed) |
-| Attrition (Trailing 12M) | Employees closed out via exit in the last 12 months, over current headcount |
-| EL Encashment Liability | What the company would owe in Earned Leave encashment if everyone left today — the same formula the F&F settlement itself uses |
+| Attrition (12 months to To) | Exits closed in the 12 months ending To, over headcount as of To |
+| EL Encashment Liability | Earned Leave balance as of To × the same formula the F&F settlement uses |
 
-Change the **As of** date at the top to see these figures as of any
-past date, not just today.
+If your access doesn't cover a figure (for example contracts), it shows
+0 and a yellow note at the top says which figures are affected.

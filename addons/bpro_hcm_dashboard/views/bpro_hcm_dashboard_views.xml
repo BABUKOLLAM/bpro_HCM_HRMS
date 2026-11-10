@@ -7,21 +7,104 @@
         <field name="arch" type="xml">
             <form class="o_form_nosheet">
                 <field name="currency_id" invisible="1"/>
-                <div class="d-flex justify-content-between align-items-center flex-wrap p-3">
-                    <h1>bpro HCM Dashboard</h1>
-                    <div>
-                        <label for="as_of_date" string="As of" class="me-2"/>
-                        <field name="as_of_date" class="d-inline-block"/>
+                <div class="d-flex justify-content-between align-items-end flex-wrap gap-3 p-3">
+                    <h1 class="mb-0">bpro HCM Dashboard</h1>
+                    <div class="d-flex flex-wrap align-items-end gap-3">
+                        <div>
+                            <label for="period_preset" string="Period" class="d-block small text-muted"/>
+                            <field name="period_preset"/>
+                        </div>
+                        <div>
+                            <label for="date_from" string="From" class="d-block small text-muted"/>
+                            <field name="date_from"/>
+                        </div>
+                        <div>
+                            <label for="as_of_date" string="To (as of)" class="d-block small text-muted"/>
+                            <field name="as_of_date"/>
+                        </div>
                     </div>
                 </div>
+                <div class="alert alert-warning mx-3" role="alert" invisible="not access_note">
+                    <field name="access_note" nolabel="1"/>
+                </div>
 
+                <h4 class="px-3 mb-0">For the period <field name="period_label" class="d-inline" nolabel="1"/></h4>
+                <div class="px-3 small text-muted">Inclusive of both dates, in your timezone.</div>
                 <div class="row g-3 p-3">
                     <div class="col-md-3">
                         <div class="card bg-primary text-white h-100">
                             <div class="card-body">
                                 <div class="text-uppercase small opacity-75">Payroll</div>
                                 <h2 class="mb-0"><field name="payroll_mtd_gross" widget="monetary" nolabel="1"/></h2>
-                                <div class="small">Gross Payout (MTD)</div>
+                                <div class="small">Gross Payout</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white h-100">
+                            <div class="card-body">
+                                <div class="text-uppercase small opacity-75">Recruitment</div>
+                                <h2 class="mb-0"><field name="joiners_count" nolabel="1"/></h2>
+                                <div class="small">Joiners</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-dark text-white h-100">
+                            <div class="card-body">
+                                <div class="text-uppercase small opacity-75">Separation</div>
+                                <h2 class="mb-0"><field name="leavers_count" nolabel="1"/></h2>
+                                <div class="small">Leavers (last working day in period)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white h-100">
+                            <div class="card-body">
+                                <div class="text-uppercase small opacity-75">Leave</div>
+                                <h2 class="mb-0"><field name="leave_days_taken" nolabel="1"/></h2>
+                                <div class="small">Leave Days Taken (approved)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-secondary text-white h-100">
+                            <div class="card-body">
+                                <div class="text-uppercase small opacity-75">Attendance</div>
+                                <h2 class="mb-0"><field name="attendance_worked_hours" nolabel="1"/></h2>
+                                <div class="small">Hours Worked</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-secondary text-white h-100">
+                            <div class="card-body">
+                                <div class="text-uppercase small opacity-75">Attendance</div>
+                                <h2 class="mb-0"><field name="attendance_exceptions_raised" nolabel="1"/></h2>
+                                <div class="small">Absences Flagged</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-secondary text-white h-100">
+                            <div class="card-body">
+                                <div class="text-uppercase small opacity-75">Overtime</div>
+                                <h2 class="mb-0"><field name="overtime_approved_hours" nolabel="1"/></h2>
+                                <div class="small">Approved Overtime Hours</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="px-3 mb-0">As of <field name="as_of_label" class="d-inline" nolabel="1"/></h4>
+                <div class="px-3 small text-muted">Snapshot at the end of the To date.</div>
+                <div class="row g-3 p-3">
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white h-100">
+                            <div class="card-body">
+                                <div class="text-uppercase small opacity-75">Workforce</div>
+                                <h2 class="mb-0"><field name="headcount" nolabel="1"/></h2>
+                                <div class="small">Headcount</div>
                             </div>
                         </div>
                     </div>
@@ -75,7 +158,7 @@
                             <div class="card-body">
                                 <div class="text-uppercase small opacity-75">Separation</div>
                                 <h2 class="mb-0"><field name="attrition_rate_pct" nolabel="1"/>%</h2>
-                                <div class="small">Attrition (Trailing 12M)</div>
+                                <div class="small">Attrition (12 months to To)</div>
                             </div>
                         </div>
                     </div>
