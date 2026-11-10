@@ -37,7 +37,7 @@ leave/time-off (with native manager/HR/double validation and negative-cap
 allowances), and attendance are native Odoo HR features requiring
 configuration only.
 """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Human Resources",
     "author": "Team bpro",
     "website": "https://bpropms.com",

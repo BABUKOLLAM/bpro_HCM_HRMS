@@ -9,7 +9,7 @@ bpro Performance Management System
 * Appraisals with self and manager ratings
 * Links training (bpro LMS) to performance goals
 """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Human Resources/Appraisals",
     "author": "Team bpro",
     "website": "https://bpropms.com",

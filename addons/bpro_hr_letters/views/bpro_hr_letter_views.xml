@@ -48,6 +48,23 @@
         </field>
     </record>
 
+    <record id="bpro_hr_letter_view_search" model="ir.ui.view">
+        <field name="name">bpro.hr.letter.search</field>
+        <field name="model">bpro.hr.letter</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="reference"/>
+                <field name="employee_id"/>
+                <field name="letter_type"/>
+                <filter name="filter_letter_date" string="Letter Date" date="letter_date"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_letter_type" string="Letter Type" context="{'group_by': 'letter_type'}"/>
+                    <filter name="group_by_letter_date" string="Letter Date" context="{'group_by': 'letter_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="action_bpro_hr_letter" model="ir.actions.act_window">
         <field name="name">HR Letters</field>
         <field name="res_model">bpro.hr.letter</field>

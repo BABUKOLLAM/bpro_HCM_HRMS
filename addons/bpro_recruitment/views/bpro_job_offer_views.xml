@@ -74,6 +74,23 @@
         </field>
     </record>
 
+    <record id="bpro_job_offer_view_search" model="ir.ui.view">
+        <field name="name">bpro.job.offer.search</field>
+        <field name="model">bpro.job.offer</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="applicant_id"/>
+                <field name="employee_id"/>
+                <filter name="filter_offer_date" string="Offer Date" date="offer_date"/>
+                <filter name="filter_joining_date" string="Joining Date" date="joining_date"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_offer_date" string="Offer Date" context="{'group_by': 'offer_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="action_bpro_job_offer" model="ir.actions.act_window">
         <field name="name">Job Offers</field>
         <field name="res_model">bpro.job.offer</field>

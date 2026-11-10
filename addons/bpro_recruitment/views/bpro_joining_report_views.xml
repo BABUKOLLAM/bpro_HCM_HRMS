@@ -57,8 +57,12 @@
             <search>
                 <field name="employee_id"/>
                 <filter name="pending" string="Pending" domain="[('state', '=', 'pending')]"/>
+                <separator/>
+                <filter name="filter_expected_joining_date" string="Expected Joining" date="expected_joining_date"/>
+                <filter name="filter_actual_joining_date" string="Actual Joining" date="actual_joining_date"/>
                 <group expand="0" string="Group By">
                     <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_expected_joining_date" string="Expected Joining" context="{'group_by': 'expected_joining_date:month'}"/>
                 </group>
             </search>
         </field>

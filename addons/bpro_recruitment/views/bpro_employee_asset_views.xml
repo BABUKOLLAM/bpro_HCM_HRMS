@@ -56,9 +56,13 @@
                 <field name="employee_id"/>
                 <field name="name"/>
                 <filter name="issued" string="Issued" domain="[('state', '=', 'issued')]"/>
+                <separator/>
+                <filter name="filter_issued_date" string="Issued On" date="issued_date"/>
+                <filter name="filter_returned_date" string="Returned On" date="returned_date"/>
                 <group expand="0" string="Group By">
                     <filter name="group_by_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
                     <filter name="group_by_type" string="Asset Type" context="{'group_by': 'asset_type'}"/>
+                    <filter name="group_by_issued_date" string="Issued On" context="{'group_by': 'issued_date:month'}"/>
                 </group>
             </search>
         </field>

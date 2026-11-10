@@ -90,6 +90,25 @@
         </field>
     </record>
 
+    <record id="bpro_vacancy_request_view_search" model="ir.ui.view">
+        <field name="name">bpro.vacancy.request.search</field>
+        <field name="model">bpro.vacancy.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="job_title"/>
+                <field name="department_id"/>
+                <field name="requested_by"/>
+                <filter name="filter_approved_date" string="Approved On" date="approved_date"/>
+                <filter name="filter_target_joining_date" string="Target Joining" date="target_joining_date"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_department" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_by_approved_date" string="Approved On" context="{'group_by': 'approved_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="action_bpro_vacancy_request" model="ir.actions.act_window">
         <field name="name">Vacancy Requests</field>
         <field name="res_model">bpro.vacancy.request</field>

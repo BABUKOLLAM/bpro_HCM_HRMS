@@ -117,9 +117,13 @@
                 <field name="department_id"/>
                 <filter name="open" string="In Progress"
                         domain="[('state', 'in', ('submitted', 'accepted', 'settled'))]"/>
+                <separator/>
+                <filter name="filter_resignation_date" string="Resignation Date" date="resignation_date"/>
+                <filter name="filter_last_working_day" string="Last Working Day" date="last_working_day"/>
                 <group expand="0" string="Group By">
                     <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
                     <filter name="group_by_department" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_by_last_working_day" string="Last Working Day" context="{'group_by': 'last_working_day:month'}"/>
                 </group>
             </search>
         </field>

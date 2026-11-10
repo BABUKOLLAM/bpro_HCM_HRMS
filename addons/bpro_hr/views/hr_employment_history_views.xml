@@ -50,6 +50,26 @@
         </field>
     </record>
 
+    <record id="view_bpro_hr_employment_history_search" model="ir.ui.view">
+        <field name="name">bpro.hr.employment.history.search</field>
+        <field name="model">bpro.hr.employment.history</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="job_id"/>
+                <filter name="current" string="Current" domain="[('date_end', '=', False)]"/>
+                <separator/>
+                <filter name="filter_date_start" string="Start Date" date="date_start"/>
+                <filter name="filter_date_end" string="End Date" date="date_end"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_department" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_by_date_start" string="Start Date" context="{'group_by': 'date_start:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="action_bpro_hr_employment_history" model="ir.actions.act_window">
         <field name="name">Employment History</field>
         <field name="res_model">bpro.hr.employment.history</field>

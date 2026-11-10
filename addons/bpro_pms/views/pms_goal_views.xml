@@ -108,6 +108,24 @@
         </field>
     </record>
 
+    <record id="view_pms_goal_search" model="ir.ui.view">
+        <field name="name">bpro.pms.goal.search</field>
+        <field name="model">bpro.pms.goal</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="cycle_id"/>
+                <filter name="filter_deadline" string="Deadline" date="deadline"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_cycle" string="Cycle" context="{'group_by': 'cycle_id'}"/>
+                    <filter name="group_by_deadline" string="Deadline" context="{'group_by': 'deadline:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="action_pms_goal_report" model="ir.actions.act_window">
         <field name="name">Goals Analysis</field>
         <field name="res_model">bpro.pms.goal</field>

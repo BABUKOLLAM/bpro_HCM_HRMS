@@ -25,7 +25,7 @@ while correctly working 14:00-22:00.
   care at go-live - Odoo calendars are per-day, so 22:00-06:00 is two
   attendance lines - deliberately not seeded blind.
 """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Human Resources",
     "author": "Team bpro",
     "website": "https://bpropms.com",

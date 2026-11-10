@@ -98,7 +98,7 @@ R4.5 - joining & onboarding:
 
 Later releases (not in this one): HOD/management reporting (R4.6).
 """,
-    "version": "18.0.1.4.0",
+    "version": "18.0.1.4.1",
     "category": "Human Resources",
     "author": "Team bpro",
     "website": "https://bpropms.com",

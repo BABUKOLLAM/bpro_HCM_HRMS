@@ -44,6 +44,8 @@
             <search>
                 <field name="employee_id"/>
                 <field name="calendar_id"/>
+                <filter name="filter_date_from" string="Starts" date="date_from"/>
+                <filter name="filter_date_to" string="Ends" date="date_to"/>
                 <group expand="0" string="Group By">
                     <filter name="group_by_shift" string="Shift" context="{'group_by': 'calendar_id'}"/>
                     <filter name="group_by_employee" string="Employee" context="{'group_by': 'employee_id'}"/>

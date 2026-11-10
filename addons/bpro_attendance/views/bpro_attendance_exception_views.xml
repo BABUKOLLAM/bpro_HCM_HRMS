@@ -57,9 +57,12 @@
                 <field name="employee_id"/>
                 <field name="department_id"/>
                 <filter name="pending" string="Pending Review" domain="[('state', '=', 'pending')]"/>
+                <separator/>
+                <filter name="filter_date" string="Date" date="date"/>
                 <group expand="0" string="Group By">
                     <filter name="group_by_department" string="Department" context="{'group_by': 'department_id'}"/>
                     <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_date" string="Date" context="{'group_by': 'date:month'}"/>
                 </group>
             </search>
         </field>
