@@ -11,7 +11,7 @@ Four-tier role model per the bpro LMS & PMS Architecture Roadmap:
 Record rules follow the three-tier pattern (company / department / self)
 that every bpro module must reuse.
 """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Hidden",
     "author": "Team bpro",
     "website": "https://bpropms.com",

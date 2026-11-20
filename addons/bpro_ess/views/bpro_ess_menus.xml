@@ -7,7 +7,8 @@
          these actions are plain list views over the same models. -->
 
     <menuitem id="menu_bpro_ess_root" name="My HR"
-              groups="bpro_base.group_employee" sequence="30"/>
+              groups="bpro_base.group_employee" sequence="30"
+              web_icon="bpro_ess,static/description/icon.png"/>
 
     <record id="action_ess_my_payslips" model="ir.actions.act_window">
         <field name="name">My Payslips</field>

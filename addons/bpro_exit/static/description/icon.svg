@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>bpro_exit: door-open (Separation &amp; alerts)</title>
+  <!-- Icons: Lucide v1.21 (https://lucide.dev), ISC licence, Copyright (c) Lucide Contributors / Cole Bemis (Feather, MIT). -->
+  <rect width="256" height="256" rx="56" fill="#b91c1c"/>
+  <rect width="256" height="128" rx="56" fill="#ffffff" fill-opacity="0.06"/>
+  <rect x="1.5" y="1.5" width="253" height="253" rx="54.5" fill="none" stroke="#ffffff" stroke-opacity="0.16" stroke-width="3"/>
+  <g transform="translate(56 56) scale(6)" fill="none" stroke="#ffffff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 20H2"/><path d="M11 4.562v16.157a1 1 0 0 0 1.242.97L19 20V5.562a2 2 0 0 0-1.515-1.94l-4-1A2 2 0 0 0 11 4.561z"/><path d="M11 4H8a2 2 0 0 0-2 2v14"/><path d="M14 12h.01"/><path d="M22 20h-3"/>
+  </g>
+</svg>

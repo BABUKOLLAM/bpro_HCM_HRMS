@@ -40,7 +40,7 @@ R5.2 - LOP payroll proration (the point of this phase):
   ESI prorate too, with zero changes to their rules: PF_WAGE follows the
   shrunken BASIC, ESI follows the shrunken GROSS.
 """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Human Resources",
     "author": "Team bpro",
     "website": "https://bpropms.com",

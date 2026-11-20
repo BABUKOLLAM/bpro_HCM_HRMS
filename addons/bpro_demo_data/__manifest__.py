@@ -28,7 +28,7 @@ looks current.
 Do NOT depend on this module from anything else, and do NOT include it
 in a production install command.
 """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Human Resources",
     "author": "Dr. Babu & bpro Technologies",
     "website": "https://www.bpropms.com",

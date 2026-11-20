@@ -5,7 +5,7 @@
         <field name="name">bpro.hcm.dashboard.form</field>
         <field name="model">bpro.hcm.dashboard</field>
         <field name="arch" type="xml">
-            <form class="o_form_nosheet">
+            <form class="o_form_nosheet bpro_hcm_dashboard">
                 <field name="currency_id" invisible="1"/>
                 <div class="d-flex justify-content-between align-items-end flex-wrap gap-3 p-3">
                     <h1 class="mb-0">bpro HCM Dashboard</h1>
@@ -28,67 +28,88 @@
                     <field name="access_note" nolabel="1"/>
                 </div>
 
-                <h4 class="px-3 mb-0">For the period <field name="period_label" class="d-inline" nolabel="1"/></h4>
+                <h4 class="px-3 mb-0 bpro_hcm_section"><span class="bpro_ic bpro_ic--calendar-range" aria-hidden="true"/> For the period <field name="period_label" class="d-inline" nolabel="1"/></h4>
                 <div class="px-3 small text-muted">Inclusive of both dates, in your timezone.</div>
                 <div class="row g-3 p-3">
-                    <div class="col-md-3">
-                        <div class="card bg-primary text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--money h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Payroll</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--indian-rupee"/></span>
+                                    <span class="bpro_hcm_kpi_label">Payroll</span>
+                                </div>
                                 <h2 class="mb-0"><field name="payroll_mtd_gross" widget="monetary" nolabel="1"/></h2>
                                 <div class="small">Gross Payout (payslips for periods starting in the range)</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-info text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--recruit h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Recruitment</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--user-plus"/></span>
+                                    <span class="bpro_hcm_kpi_label">Recruitment</span>
+                                </div>
                                 <h2 class="mb-0"><field name="joiners_count" nolabel="1"/></h2>
                                 <div class="small">Joiners</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-dark text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--alerts h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Separation</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--door-open"/></span>
+                                    <span class="bpro_hcm_kpi_label">Separation</span>
+                                </div>
                                 <h2 class="mb-0"><field name="leavers_count" nolabel="1"/></h2>
                                 <div class="small">Leavers (last working day in period)</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-success text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--time h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Leave</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--calendar-check"/></span>
+                                    <span class="bpro_hcm_kpi_label">Leave</span>
+                                </div>
                                 <h2 class="mb-0"><field name="leave_days_taken" nolabel="1"/></h2>
                                 <div class="small">Leave Days Taken (approved)</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-secondary text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--time h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Attendance</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--clock"/></span>
+                                    <span class="bpro_hcm_kpi_label">Attendance</span>
+                                </div>
                                 <h2 class="mb-0"><field name="attendance_worked_hours" nolabel="1"/></h2>
                                 <div class="small">Hours Worked</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-secondary text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--alerts h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Attendance</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--calendar-x"/></span>
+                                    <span class="bpro_hcm_kpi_label">Attendance</span>
+                                </div>
                                 <h2 class="mb-0"><field name="attendance_exceptions_raised" nolabel="1"/></h2>
                                 <div class="small">Absences Flagged</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-secondary text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--time h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Overtime</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--timer"/></span>
+                                    <span class="bpro_hcm_kpi_label">Overtime</span>
+                                </div>
                                 <h2 class="mb-0"><field name="overtime_approved_hours" nolabel="1"/></h2>
                                 <div class="small">Approved Overtime Hours</div>
                             </div>
@@ -96,76 +117,100 @@
                     </div>
                 </div>
 
-                <h4 class="px-3 mb-0">As of <field name="as_of_label" class="d-inline" nolabel="1"/></h4>
+                <h4 class="px-3 mb-0 bpro_hcm_section"><span class="bpro_ic bpro_ic--calendar-check" aria-hidden="true"/> As of <field name="as_of_label" class="d-inline" nolabel="1"/></h4>
                 <div class="px-3 small text-muted">Snapshot at the end of the To date.</div>
                 <div class="row g-3 p-3">
-                    <div class="col-md-3">
-                        <div class="card bg-info text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--people h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Workforce</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--users"/></span>
+                                    <span class="bpro_hcm_kpi_label">Workforce</span>
+                                </div>
                                 <h2 class="mb-0"><field name="headcount" nolabel="1"/></h2>
                                 <div class="small">Headcount</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-warning h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--money h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Payroll</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--hourglass"/></span>
+                                    <span class="bpro_hcm_kpi_label">Payroll</span>
+                                </div>
                                 <h2 class="mb-0"><field name="payroll_pending_confirmation" nolabel="1"/></h2>
                                 <div class="small">Payslips Pending Confirmation</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-info text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--recruit h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Recruitment</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--briefcase"/></span>
+                                    <span class="bpro_hcm_kpi_label">Recruitment</span>
+                                </div>
                                 <h2 class="mb-0"><field name="recruitment_open_vacancies" nolabel="1"/></h2>
                                 <div class="small">Open Vacancies</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-info text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--recruit h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Recruitment</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--clock-alert"/></span>
+                                    <span class="bpro_hcm_kpi_label">Recruitment</span>
+                                </div>
                                 <h2 class="mb-0"><field name="recruitment_overdue_joining_reports" nolabel="1"/></h2>
                                 <div class="small">Overdue Joining Reports</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-secondary text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--time h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Attendance</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--clipboard-check"/></span>
+                                    <span class="bpro_hcm_kpi_label">Attendance</span>
+                                </div>
                                 <h2 class="mb-0"><field name="attendance_pending_exceptions" nolabel="1"/></h2>
                                 <div class="small">Pending Absence Reviews</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-dark text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--alerts h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Separation</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--door-open"/></span>
+                                    <span class="bpro_hcm_kpi_label">Separation</span>
+                                </div>
                                 <h2 class="mb-0"><field name="exit_open_requests" nolabel="1"/></h2>
                                 <div class="small">Open Exit Requests</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-danger text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--alerts h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Separation</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--trending-down"/></span>
+                                    <span class="bpro_hcm_kpi_label">Separation</span>
+                                </div>
                                 <h2 class="mb-0"><field name="attrition_rate_pct" nolabel="1"/>%</h2>
                                 <div class="small">Attrition (12 months to To)</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-success text-white h-100">
+                    <div class="col-sm-6 col-md-3 bpro_ic_rise">
+                        <div class="card bpro_hcm_kpi bpro_ic_host bpro_acc--money h-100">
                             <div class="card-body">
-                                <div class="text-uppercase small opacity-75">Leave</div>
+                                <div class="bpro_hcm_kpi_head">
+                                    <span class="bpro_ic_chip" aria-hidden="true"><span class="bpro_ic bpro_ic--wallet"/></span>
+                                    <span class="bpro_hcm_kpi_label">Leave</span>
+                                </div>
                                 <h2 class="mb-0"><field name="el_liability" widget="monetary" nolabel="1"/></h2>
                                 <div class="small">EL Encashment Liability</div>
                             </div>
@@ -184,7 +229,8 @@
         <field name="context">{}</field>
     </record>
 
-    <menuitem id="menu_bpro_hcm_dashboard_root" name="Human Resources" sequence="1"/>
+    <menuitem id="menu_bpro_hcm_dashboard_root" name="Human Resources" sequence="1"
+              web_icon="bpro_hcm_dashboard,static/description/icon.png"/>
     <menuitem id="menu_bpro_hcm_dashboard" name="Dashboard"
               parent="menu_bpro_hcm_dashboard_root"
               action="action_bpro_hcm_dashboard" sequence="1"/>

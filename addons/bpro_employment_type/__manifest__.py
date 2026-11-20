@@ -57,7 +57,7 @@ a Daily Wage contract (no CTC set) - OT for daily-wage workers would
 need its own daily-rate-based calculation, not built here. See
 KNOWN_LIMITATIONS.md.
 """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Human Resources",
     "author": "Dr. Babu & bpro Technologies",
     "website": "https://www.bpropms.com",

@@ -4,8 +4,8 @@
     <t t-name="bpro_theme_switcher.ThemeLangSystray">
         <div class="bpro-theme-lang-systray d-flex align-items-center">
             <Dropdown>
-                <button class="btn bpro-theme-lang-btn" title="Language and theme">
-                    <i class="fa fa-globe"/>
+                <button class="btn bpro-theme-lang-btn" title="Language and theme" aria-label="Language and theme">
+                    <span class="bpro_ic bpro_ic--globe" aria-hidden="true"/>
                 </button>
                 <t t-set-slot="content">
                     <div class="bpro-theme-lang-section-label">Theme</div>
@@ -13,10 +13,10 @@
                         <DropdownItem onSelected="() => this.onSelectTheme(opt.value)">
                             <div class="d-flex align-items-center justify-content-between w-100">
                                 <span>
-                                    <i t-attf-class="fa {{opt.icon}} me-2"/>
+                                    <span t-attf-class="bpro_ic bpro_ic--{{opt.icon}} me-2" aria-hidden="true"/>
                                     <t t-esc="opt.label"/>
                                 </span>
-                                <i t-if="state.themePref === opt.value" class="fa fa-check text-primary"/>
+                                <span t-if="state.themePref === opt.value" class="bpro_ic bpro_ic--check text-primary" aria-hidden="true"/>
                             </div>
                         </DropdownItem>
                     </t>
@@ -26,7 +26,7 @@
                         <DropdownItem onSelected="() => this.onSelectLang(lang.code)">
                             <div class="d-flex align-items-center justify-content-between w-100">
                                 <span t-esc="lang.name"/>
-                                <i t-if="state.currentLang === lang.code" class="fa fa-check text-primary"/>
+                                <span t-if="state.currentLang === lang.code" class="bpro_ic bpro_ic--check text-primary" aria-hidden="true"/>
                             </div>
                         </DropdownItem>
                     </t>

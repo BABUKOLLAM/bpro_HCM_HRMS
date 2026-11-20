@@ -31,9 +31,9 @@
                                    workspace.</p>
                             </div>
                             <div class="bpro-login-chips">
-                                <span class="bpro-chip"><i class="fa fa-inr me-2"/>India payroll compliance</span>
-                                <span class="bpro-chip"><i class="fa fa-shield me-2"/>Role-scoped security</span>
-                                <span class="bpro-chip"><i class="fa fa-mobile me-2"/>Employee self-service</span>
+                                <span class="bpro-chip"><span class="bpro_ic bpro_ic--indian-rupee me-2" aria-hidden="true"/>India payroll compliance</span>
+                                <span class="bpro-chip"><span class="bpro_ic bpro_ic--shield-check me-2" aria-hidden="true"/>Role-scoped security</span>
+                                <span class="bpro-chip"><span class="bpro_ic bpro_ic--smartphone me-2" aria-hidden="true"/>Employee self-service</span>
                             </div>
                             <div class="bpro-login-foot">
                                 Developed by <a href="https://www.drbabu.in" target="_blank" rel="noopener">Dr. Babu</a>

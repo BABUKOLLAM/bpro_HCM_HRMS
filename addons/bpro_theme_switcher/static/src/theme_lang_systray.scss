@@ -7,8 +7,26 @@
     border: none;
     background: transparent;
 
+    > .bpro_ic {
+        width: 1.15rem;
+        height: 1.15rem;
+        transition: transform 0.18s ease-out;
+    }
+
     &:hover {
         opacity: 0.8;
+    }
+
+    &:hover > .bpro_ic,
+    &:focus-visible > .bpro_ic {
+        transform: scale(1.08);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bpro-theme-lang-btn > .bpro_ic {
+        transition: none;
+        transform: none !important;
     }
 }
 

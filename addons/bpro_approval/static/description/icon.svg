@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>bpro_approval: badge-check (Platform &amp; settings)</title>
+  <!-- Icons: Lucide v1.21 (https://lucide.dev), ISC licence, Copyright (c) Lucide Contributors / Cole Bemis (Feather, MIT). -->
+  <rect width="256" height="256" rx="56" fill="#64748b"/>
+  <rect width="256" height="128" rx="56" fill="#ffffff" fill-opacity="0.06"/>
+  <rect x="1.5" y="1.5" width="253" height="253" rx="54.5" fill="none" stroke="#ffffff" stroke-opacity="0.16" stroke-width="3"/>
+  <g transform="translate(56 56) scale(6)" fill="none" stroke="#ffffff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/>
+  </g>
+</svg>

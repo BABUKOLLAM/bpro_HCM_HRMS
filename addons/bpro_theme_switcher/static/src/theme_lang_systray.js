@@ -11,9 +11,9 @@ import { Component, onWillStart, useState } from "@odoo/owl";
 import { getThemePref, setThemePref } from "./theme_utils";
 
 const THEME_OPTIONS = [
-    { value: "light", label: _t("Day"), icon: "fa-sun-o" },
-    { value: "dark", label: _t("Night"), icon: "fa-moon-o" },
-    { value: "auto", label: _t("Auto"), icon: "fa-adjust" },
+    { value: "light", label: _t("Day"), icon: "sun" },
+    { value: "dark", label: _t("Night"), icon: "moon" },
+    { value: "auto", label: _t("Auto"), icon: "sun-moon" },
 ];
 
 export class ThemeLangSystray extends Component {

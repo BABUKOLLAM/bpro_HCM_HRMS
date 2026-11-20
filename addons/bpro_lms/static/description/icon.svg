@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>bpro_lms: graduation-cap (Performance &amp; learning)</title>
+  <!-- Icons: Lucide v1.21 (https://lucide.dev), ISC licence, Copyright (c) Lucide Contributors / Cole Bemis (Feather, MIT). -->
+  <rect width="256" height="256" rx="56" fill="#4338ca"/>
+  <rect width="256" height="128" rx="56" fill="#ffffff" fill-opacity="0.06"/>
+  <rect x="1.5" y="1.5" width="253" height="253" rx="54.5" fill="none" stroke="#ffffff" stroke-opacity="0.16" stroke-width="3"/>
+  <g transform="translate(56 56) scale(6)" fill="none" stroke="#ffffff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>
+  </g>
+</svg>

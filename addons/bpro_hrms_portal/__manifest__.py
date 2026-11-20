@@ -16,7 +16,7 @@ Public-facing experience layer for the bpro HCM HRMS Suite Pro platform:
 All motion respects prefers-reduced-motion. No external JS libraries -
 scroll reveals, counters and parallax are ~100 lines of vanilla JS.
 """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Hidden",
     "author": "Team bpro",
     "website": "https://bpropms.com",
@@ -29,6 +29,7 @@ scroll reveals, counters and parallax are ~100 lines of vanilla JS.
     ],
     "assets": {
         "web.assets_frontend": [
+            "bpro_hrms_portal/static/src/scss/bpro_icons.scss",
             "bpro_hrms_portal/static/src/scss/hrms_portal.scss",
             "bpro_hrms_portal/static/src/js/hrms_portal.js",
         ],

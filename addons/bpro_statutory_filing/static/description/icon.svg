@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>bpro_statutory_filing: landmark (Payroll &amp; money)</title>
+  <!-- Icons: Lucide v1.21 (https://lucide.dev), ISC licence, Copyright (c) Lucide Contributors / Cole Bemis (Feather, MIT). -->
+  <rect width="256" height="256" rx="56" fill="#854d0e"/>
+  <rect width="256" height="128" rx="56" fill="#ffffff" fill-opacity="0.06"/>
+  <rect x="1.5" y="1.5" width="253" height="253" rx="54.5" fill="none" stroke="#ffffff" stroke-opacity="0.16" stroke-width="3"/>
+  <g transform="translate(56 56) scale(6)" fill="none" stroke="#ffffff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 18v-7"/><path d="M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M3 22h18"/><path d="M6 18v-7"/>
+  </g>
+</svg>

@@ -22,7 +22,7 @@
                             <a href="#compliance">Compliance</a>
                         </div>
                         <a href="/web/login" class="bpro-btn bpro-btn-nav">
-                            Sign in <i class="fa fa-arrow-right ms-2"/>
+                            Sign in <span class="bpro_ic bpro_ic--arrow-right ms-2" aria-hidden="true"/>
                         </a>
                     </div>
                 </nav>
@@ -53,7 +53,7 @@
                             </p>
                             <div class="bpro-hero-actions bpro-reveal" data-delay="300">
                                 <a href="/web/login" class="bpro-btn bpro-btn-primary">
-                                    Sign in to your workspace <i class="fa fa-arrow-right ms-2"/>
+                                    Sign in to your workspace <span class="bpro_ic bpro_ic--arrow-right ms-2" aria-hidden="true"/>
                                 </a>
                                 <a href="#modules" class="bpro-btn bpro-btn-ghost">
                                     Explore the suite
@@ -75,7 +75,7 @@
                                 <div class="bpro-mock-bar"><span style="width:86%"/></div>
                                 <div class="bpro-mock-row">
                                     <span>PF · ESI · PT · LWF · TDS</span>
-                                    <strong class="bpro-mock-ok"><i class="fa fa-check-circle me-1"/>Filed</strong>
+                                    <strong class="bpro-mock-ok"><span class="bpro_ic bpro_ic--circle-check me-1" aria-hidden="true"/>Filed</strong>
                                 </div>
                                 <div class="bpro-mock-bar bpro-mock-bar-green"><span style="width:100%"/></div>
                             </div>
@@ -91,7 +91,7 @@
                                 </div>
                             </div>
                             <div class="bpro-mock bpro-mock-chip bpro-float-3">
-                                <i class="fa fa-user-plus"/>
+                                <span class="bpro_ic bpro_ic--user-plus" aria-hidden="true"/>
                                 <div>
                                     <strong>Offer accepted</strong>
                                     <span>EMP00214 · joins Sep 01</span>
@@ -137,49 +137,49 @@
                         </div>
                         <div class="bpro-module-grid">
                             <div class="bpro-card bpro-reveal">
-                                <div class="bpro-card-icon"><i class="fa fa-sitemap"/></div>
+                                <div class="bpro-card-icon"><span class="bpro_ic bpro_ic--network" aria-hidden="true"/></div>
                                 <h3>Core HR</h3>
                                 <p>Employee master, org structure, employment history and a
                                    four-tier security model scoped from employee to super admin.</p>
                             </div>
                             <div class="bpro-card bpro-reveal" data-delay="60">
-                                <div class="bpro-card-icon"><i class="fa fa-inr"/></div>
+                                <div class="bpro-card-icon"><span class="bpro_ic bpro_ic--indian-rupee" aria-hidden="true"/></div>
                                 <h3>Payroll — India</h3>
                                 <p>CTC structures, PF, ESI, state-wise PT and LWF, new &amp; old
                                    regime TDS with Form 16 — computed, not copy-pasted.</p>
                             </div>
                             <div class="bpro-card bpro-reveal" data-delay="120">
-                                <div class="bpro-card-icon"><i class="fa fa-briefcase"/></div>
+                                <div class="bpro-card-icon"><span class="bpro_ic bpro_ic--briefcase" aria-hidden="true"/></div>
                                 <h3>Recruitment</h3>
                                 <p>Vacancy requests, interview panels, tokenised offer portal,
                                    one-click hiring finalization with unique employee codes.</p>
                             </div>
                             <div class="bpro-card bpro-reveal" data-delay="180">
-                                <div class="bpro-card-icon"><i class="fa fa-clock-o"/></div>
+                                <div class="bpro-card-icon"><span class="bpro_ic bpro_ic--clock" aria-hidden="true"/></div>
                                 <h3>Attendance</h3>
                                 <p>Punch-log imports from any device, automatic exception
                                    detection and HR review workflows.</p>
                             </div>
                             <div class="bpro-card bpro-reveal">
-                                <div class="bpro-card-icon"><i class="fa fa-calendar-check-o"/></div>
+                                <div class="bpro-card-icon"><span class="bpro_ic bpro_ic--calendar-check" aria-hidden="true"/></div>
                                 <h3>Leave &amp; LOP</h3>
                                 <p>India leave types out of the box, with loss-of-pay flowing
                                    straight into payroll proration — no spreadsheets between.</p>
                             </div>
                             <div class="bpro-card bpro-reveal" data-delay="60">
-                                <div class="bpro-card-icon"><i class="fa fa-handshake-o"/></div>
+                                <div class="bpro-card-icon"><span class="bpro_ic bpro_ic--handshake" aria-hidden="true"/></div>
                                 <h3>Exit &amp; F&amp;F</h3>
                                 <p>Separation workflows, clearance checklists and a full
                                    final-settlement statement, generated — not assembled.</p>
                             </div>
                             <div class="bpro-card bpro-reveal" data-delay="120">
-                                <div class="bpro-card-icon"><i class="fa fa-mobile"/></div>
+                                <div class="bpro-card-icon"><span class="bpro_ic bpro_ic--smartphone" aria-hidden="true"/></div>
                                 <h3>Employee Self-Service</h3>
                                 <p>Payslips, leave, attendance and personal data in each
                                    employee's own hands — scoped to exactly what's theirs.</p>
                             </div>
                             <div class="bpro-card bpro-reveal" data-delay="180">
-                                <div class="bpro-card-icon"><i class="fa fa-graduation-cap"/></div>
+                                <div class="bpro-card-icon"><span class="bpro_ic bpro_ic--graduation-cap" aria-hidden="true"/></div>
                                 <h3>Learning &amp; Performance</h3>
                                 <p>SCORM e-learning with auto-enrolled induction, competency
                                    maps, goals and appraisal cycles.</p>
@@ -214,7 +214,7 @@
                         <h2>Your workspace is ready.</h2>
                         <p>Sign in with your company credentials to continue.</p>
                         <a href="/web/login" class="bpro-btn bpro-btn-light">
-                            Sign in <i class="fa fa-arrow-right ms-2"/>
+                            Sign in <span class="bpro_ic bpro_ic--arrow-right ms-2" aria-hidden="true"/>
                         </a>
                     </div>
                 </section>

@@ -9,7 +9,7 @@ Builds on Odoo eLearning (website_slides):
 * Certifications and completion tracking
 * Training linked to performance goals (with bpro PMS)
 """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Website/eLearning",
     "author": "Team bpro",
     "website": "https://bpropms.com",

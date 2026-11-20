@@ -20,7 +20,7 @@ every backend screen) with two controls:
   first paint - no flash. Same approach as the sibling mepcrm.in
   product's bpro_ui_prefs module, ported here.
 """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Hidden",
     "author": "Team bpro",
     "website": "https://bpropms.com",
@@ -31,6 +31,7 @@ every backend screen) with two controls:
             "bpro_theme_switcher/static/src/theme_utils.js",
             "bpro_theme_switcher/static/src/theme_lang_systray.js",
             "bpro_theme_switcher/static/src/theme_lang_systray.xml",
+            "bpro_theme_switcher/static/src/bpro_icons.scss",
             "bpro_theme_switcher/static/src/theme_lang_systray.scss",
             "bpro_theme_switcher/static/src/dark_theme.scss",
         ],

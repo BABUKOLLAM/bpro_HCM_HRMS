@@ -9,7 +9,7 @@ Shared foundation for the bpro ERP modules (Sales, Inventory, Finance):
 
 Concrete models must override _approval_policy_key(), _approval_amount() and _approval_group_xmlid() before calling the mixin's actions.
 """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Hidden",
     "author": "Team bpro",
     "website": "https://bpropms.com",

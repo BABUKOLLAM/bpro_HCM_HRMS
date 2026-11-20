@@ -1,0 +1,188 @@
+{
+  "_doc": "One accent per group, shared with the other bpro Odoo product (MEP Mini ERP) and derived from the bpro navy #14486B / green #1C7C54 brand. apps: module -> [Lucide glyph, group]. kits: per-module CSS icon kits. no_legacy: files that must stay free of FontAwesome/emoji icons.",
+  "dark_selector": "html[data-bpro-theme=\"dark\"]",
+  "groups": {
+    "people": {
+      "label": "HR & people",
+      "color": "#1d5fa8"
+    },
+    "money": {
+      "label": "Payroll & money",
+      "color": "#854d0e"
+    },
+    "time": {
+      "label": "Attendance, leave & time",
+      "color": "#0e7490"
+    },
+    "recruit": {
+      "label": "Recruitment",
+      "color": "#a21caf"
+    },
+    "pms": {
+      "label": "Performance & learning",
+      "color": "#4338ca"
+    },
+    "alerts": {
+      "label": "Separation & alerts",
+      "color": "#b91c1c"
+    },
+    "dashboard": {
+      "label": "Dashboards",
+      "color": "#334155"
+    },
+    "platform": {
+      "label": "Platform & settings",
+      "color": "#64748b"
+    }
+  },
+  "apps": {
+    "bpro_approval": [
+      "badge-check",
+      "platform"
+    ],
+    "bpro_attendance": [
+      "clock",
+      "time"
+    ],
+    "bpro_base": [
+      "layers",
+      "platform"
+    ],
+    "bpro_demo_data": [
+      "database",
+      "platform"
+    ],
+    "bpro_employment_type": [
+      "id-card",
+      "people"
+    ],
+    "bpro_ess": [
+      "user-round",
+      "people"
+    ],
+    "bpro_exit": [
+      "door-open",
+      "alerts"
+    ],
+    "bpro_hcm_dashboard": [
+      "layout-dashboard",
+      "dashboard"
+    ],
+    "bpro_hr": [
+      "users",
+      "people"
+    ],
+    "bpro_hr_letters": [
+      "file-signature",
+      "people"
+    ],
+    "bpro_hrms_portal": [
+      "globe",
+      "platform"
+    ],
+    "bpro_leave": [
+      "calendar-check",
+      "time"
+    ],
+    "bpro_lms": [
+      "graduation-cap",
+      "pms"
+    ],
+    "bpro_overtime": [
+      "timer",
+      "time"
+    ],
+    "bpro_payroll": [
+      "indian-rupee",
+      "money"
+    ],
+    "bpro_pms": [
+      "target",
+      "pms"
+    ],
+    "bpro_probation": [
+      "hourglass",
+      "people"
+    ],
+    "bpro_recruitment": [
+      "user-plus",
+      "recruit"
+    ],
+    "bpro_shifts": [
+      "calendar-clock",
+      "time"
+    ],
+    "bpro_statutory_filing": [
+      "landmark",
+      "money"
+    ],
+    "bpro_theme_switcher": [
+      "sun-moon",
+      "platform"
+    ]
+  },
+  "kits": {
+    "bpro_hcm_dashboard": {
+      "path": "static/src/scss/bpro_icons.scss",
+      "chips": true,
+      "icons": [
+        "indian-rupee",
+        "user-plus",
+        "door-open",
+        "calendar-check",
+        "clock",
+        "calendar-x",
+        "timer",
+        "users",
+        "hourglass",
+        "briefcase",
+        "clock-alert",
+        "clipboard-check",
+        "trending-down",
+        "wallet",
+        "calendar-range"
+      ]
+    },
+    "bpro_theme_switcher": {
+      "path": "static/src/bpro_icons.scss",
+      "icons": [
+        "sun",
+        "moon",
+        "sun-moon",
+        "globe",
+        "check"
+      ]
+    },
+    "bpro_hrms_portal": {
+      "path": "static/src/scss/bpro_icons.scss",
+      "icons": [
+        "arrow-right",
+        "circle-check",
+        "user-plus",
+        "network",
+        "indian-rupee",
+        "briefcase",
+        "clock",
+        "calendar-check",
+        "handshake",
+        "smartphone",
+        "graduation-cap",
+        "shield-check",
+        "message-circle",
+        "mail",
+        "phone"
+      ]
+    }
+  },
+  "no_legacy": [
+    "bpro_hcm_dashboard/views/bpro_hcm_dashboard_views.xml",
+    "bpro_theme_switcher/static/src/theme_lang_systray.xml",
+    "bpro_theme_switcher/static/src/theme_lang_systray.js",
+    "bpro_hrms_portal/views/landing_templates.xml",
+    "bpro_hrms_portal/views/login_templates.xml",
+    "bpro_hrms_portal/views/footer_templates.xml"
+  ],
+  "doc_notes": [
+    "Left as they were: Odoo core UI, and the non-bpro payroll / payroll_account / payroll_contract_advantages modules."
+  ]
+}

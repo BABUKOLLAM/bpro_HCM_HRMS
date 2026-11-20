@@ -32,7 +32,7 @@ otherwise HR/payroll staff would silently get narrowed to their own
 records. hr.payslip previously had NO ir.rule at all (ACL-only), so
 this module adds the payroll-user unrestricted rule explicitly.
 """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Human Resources",
     "author": "Team bpro",
     "website": "https://bpropms.com",

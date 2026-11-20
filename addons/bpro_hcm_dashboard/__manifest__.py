@@ -29,7 +29,7 @@ flagged, approved overtime) add up From..To; stock figures (headcount,
 pending payslips, vacancies, backlogs, attrition, EL liability) are as
 of To. "As of" is kept as the To date for compatibility.
 """,
-    "version": "18.0.1.1.0",
+    "version": "18.0.1.1.1",
     "category": "Human Resources",
     "author": "Dr. Babu & bpro Technologies",
     "website": "https://www.bpropms.com",
@@ -39,6 +39,12 @@ of To. "As of" is kept as the To date for compatibility.
         "security/ir.model.access.csv",
         "views/bpro_hcm_dashboard_views.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "bpro_hcm_dashboard/static/src/scss/bpro_icons.scss",
+            "bpro_hcm_dashboard/static/src/scss/bpro_hcm_dashboard.scss",
+        ],
+    },
     "installable": True,
     "application": True,
 }

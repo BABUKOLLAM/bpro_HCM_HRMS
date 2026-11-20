@@ -47,15 +47,15 @@
                             <div id="connect" class="col-lg-3 offset-lg-1 pt24 pb24">
                                 <h5 class="mb-3">Connect with us</h5>
                                 <ul class="list-unstyled">
-                                    <li><i class="fa fa-comment fa-fw me-2"/><span><a href="/contactus">Contact us</a></span></li>
+                                    <li><span class="bpro_ic bpro_ic--message-circle me-2" aria-hidden="true"/><span><a href="/contactus">Contact us</a></span></li>
                                     <li t-if="website.company_id.email">
-                                        <i class="fa fa-envelope fa-fw me-2"/>
+                                        <span class="bpro_ic bpro_ic--mail me-2" aria-hidden="true"/>
                                         <span>
                                             <a t-attf-href="mailto:{{website.company_id.email}}" t-esc="website.company_id.email"/>
                                         </span>
                                     </li>
                                     <li t-if="website.company_id.phone">
-                                        <i class="fa fa-phone fa-fw me-2"/>
+                                        <span class="bpro_ic bpro_ic--phone me-2" aria-hidden="true"/>
                                         <span class="o_force_ltr">
                                             <a t-attf-href="tel:{{website.company_id.phone}}" t-esc="website.company_id.phone"/>
                                         </span>
