@@ -188,12 +188,13 @@ SPIN_SCSS = """
 """
 
 REDUCED = """
+// Bare .bpro_ic is deliberately NOT listed: hosts rotate it for state
+// (e.g. an expanded chevron) and .bpro_ic_spin is a loading indicator,
+// which the spec keeps spinning.
 @media (prefers-reduced-motion: reduce) {
-    .bpro_ic,
     .bpro_ic_chip,
     .bpro_ic_rise,
     .bpro_ic_pulse,
-    .bpro_ic_spin,
     .bpro_ic_host:hover .bpro_ic_chip,
     .bpro_ic_host:focus-within .bpro_ic_chip,
     .bpro_ic_host:active .bpro_ic_chip,

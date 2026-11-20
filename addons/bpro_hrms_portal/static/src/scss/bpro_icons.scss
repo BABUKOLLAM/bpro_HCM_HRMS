@@ -29,12 +29,13 @@
 .bpro_ic--mail { --bpro-ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7'/%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3C/svg%3E"); }
 .bpro_ic--phone { --bpro-ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384'/%3E%3C/svg%3E"); }
 
+// Bare .bpro_ic is deliberately NOT listed: hosts rotate it for state
+// (e.g. an expanded chevron) and .bpro_ic_spin is a loading indicator,
+// which the spec keeps spinning.
 @media (prefers-reduced-motion: reduce) {
-    .bpro_ic,
     .bpro_ic_chip,
     .bpro_ic_rise,
     .bpro_ic_pulse,
-    .bpro_ic_spin,
     .bpro_ic_host:hover .bpro_ic_chip,
     .bpro_ic_host:focus-within .bpro_ic_chip,
     .bpro_ic_host:active .bpro_ic_chip,
